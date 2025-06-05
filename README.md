@@ -80,10 +80,43 @@ A modern, React + TypeScript web application that transforms your Swiggy order d
 ### Production Build
 
 ```bash
-npm run build
+pnpm run build
 ```
 
-This creates an optimized production build in the `build/` folder.
+This creates an optimized production build in the `dist/` folder.
+
+### 🌐 GitHub Pages Deployment
+
+This project is configured for automatic deployment to GitHub Pages using GitHub Actions.
+
+#### Setup Instructions
+
+1. **Enable GitHub Pages**
+   - Go to your repository → Settings → Pages
+   - Source: "GitHub Actions"
+   - The site will be available at: `https://yourusername.github.io/swig/`
+
+2. **Automatic Deployment**
+   - Push to `main` branch triggers automatic deployment
+   - GitHub Actions will build and deploy your app
+   - Check the Actions tab for deployment status
+
+3. **Custom Domain (Optional)**
+   - Add a `CNAME` file to the `public/` folder with your domain
+   - Configure your domain's DNS to point to GitHub Pages
+
+#### Manual Deployment
+
+If you prefer manual deployment:
+
+```bash
+# Build the project
+pnpm run build
+
+# Deploy to gh-pages branch (requires gh-pages package)
+npm install -g gh-pages
+gh-pages -d dist
+```
 
 ## 📱 Usage
 
