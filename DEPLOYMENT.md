@@ -1,6 +1,6 @@
-# GitHub Pages Deployment Guide for SwiggyScope
+# GitHub Pages Deployment Guide for Spenddy
 
-This guide will help you deploy your SwiggyScope application to GitHub Pages for easy public access.
+This guide will help you deploy your Spenddy application to GitHub Pages for easy public access.
 
 ## 🚀 Quick Setup
 
@@ -150,6 +150,6 @@ If you encounter issues:
 
 ---
 
-**Your SwiggyScope app is now ready for the world! 🌍**
+**Your Spenddy app is now ready for the world! 🌍**
 
 Share your deployed link and let users analyze their Swiggy data privately and securely.

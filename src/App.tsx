@@ -107,8 +107,10 @@ function AppSidebar({
             🍕
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold">SwiggyScope</span>
-            <span className="truncate text-xs text-muted-foreground">Food Analytics</span>
+            <span className="truncate font-semibold">Spenddy</span>
+            <span className="truncate text-xs text-muted-foreground">
+              Food Analytics
+            </span>
           </div>
         </div>
       </SidebarHeader>
@@ -120,8 +122,8 @@ function AppSidebar({
             {navigationItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeView === item.id;
-              const isDisabled = item.id !== 'upload' && !processedData;
-              
+              const isDisabled = item.id !== "upload" && !processedData;
+
               return (
                 <SidebarMenuItem key={item.id}>
                   <SidebarMenuButton

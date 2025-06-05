@@ -1,10 +1,10 @@
-# SwiggyScope 🍕
+# Spenddy 🍕
 
 **Advanced Swiggy Order Analytics Platform**
 
 A modern, React + TypeScript web application that transforms your Swiggy order data into beautiful, interactive analytics dashboards. Built with cutting-edge technologies for the best user experience.
 
-![SwiggyScope Preview](https://img.shields.io/badge/Status-Ready%20for%20Development-green)
+![Spenddy Preview](https://img.shields.io/badge/Status-Ready%20for%20Development-green)
 ![React](https://img.shields.io/badge/React-18.2.0-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-4.9.0-blue)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.3.0-blue)
@@ -131,10 +131,10 @@ gh-pages -d dist
    - Request your data export
    - Download the ZIP file when ready
 
-3. **Upload to SwiggyScope**
+3. **Upload to Spenddy**
    - Extract the ZIP file
    - Find the `allOrders.json` file
-   - Drag and drop it into SwiggyScope
+   - Drag and drop it into Spenddy
 
 ### Exploring Analytics
 
@@ -280,4 +280,4 @@ If you have any questions or need help:
 
 **Made with ❤️ for food lovers who want to understand their ordering patterns**
 
-*SwiggyScope - Bringing clarity to your food ordering journey* 🍽️📊 
+*Spenddy - Bringing clarity to your food ordering journey* 🍽️📊

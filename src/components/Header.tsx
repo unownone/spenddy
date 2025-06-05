@@ -20,7 +20,7 @@ const Header: React.FC<HeaderProps> = ({ hasData, totalOrders, totalSpent, dateR
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo and Title */}
-          <motion.div 
+          <motion.div
             className="flex items-center space-x-3"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -30,18 +30,14 @@ const Header: React.FC<HeaderProps> = ({ hasData, totalOrders, totalSpent, dateR
               <span className="text-white text-lg font-bold">🍕</span>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gradient">
-                SwiggyScope
-              </h1>
-              <p className="text-gray-400 text-sm">
-                Advanced Order Analytics
-              </p>
+              <h1 className="text-2xl font-bold text-gradient">Spenddy</h1>
+              <p className="text-gray-400 text-sm">Advanced Order Analytics</p>
             </div>
           </motion.div>
 
           {/* Stats Summary */}
           {hasData && (
-            <motion.div 
+            <motion.div
               className="flex items-center space-x-6"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -53,7 +49,7 @@ const Header: React.FC<HeaderProps> = ({ hasData, totalOrders, totalSpent, dateR
                   {totalOrders.toLocaleString()} orders
                 </span>
               </div>
-              
+
               <div className="flex items-center space-x-2 text-sm">
                 <TrendingUp className="w-4 h-4 text-green-500" />
                 <span className="text-gray-300">
@@ -65,7 +61,8 @@ const Header: React.FC<HeaderProps> = ({ hasData, totalOrders, totalSpent, dateR
                 <div className="flex items-center space-x-2 text-sm">
                   <Calendar className="w-4 h-4 text-blue-500" />
                   <span className="text-gray-300">
-                    {format(dateRange.start, 'MMM yyyy')} - {format(dateRange.end, 'MMM yyyy')}
+                    {format(dateRange.start, "MMM yyyy")} -{" "}
+                    {format(dateRange.end, "MMM yyyy")}
                   </span>
                 </div>
               )}

@@ -66,16 +66,17 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, isLoading, error 
       >
         <div className="space-y-6">
           <h1 className="text-4xl lg:text-6xl font-bold tracking-tight">
-            Welcome to{' '}
+            Welcome to{" "}
             <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
-              SwiggyScope
+              Spenddy
             </span>
           </h1>
           <p className="text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Transform your Swiggy order history into actionable insights and discover your food ordering patterns
+            Transform your Swiggy order history into actionable insights and
+            discover your food ordering patterns
           </p>
         </div>
-        
+
         <div className="flex flex-wrap justify-center gap-3">
           <Badge variant="secondary" className="gap-2">
             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -104,22 +105,29 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, isLoading, error 
             <div
               {...getRootProps()}
               className={cn(
-                'relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300 cursor-pointer group',
+                "relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300 cursor-pointer group",
                 {
-                  'border-orange-500 bg-orange-500/10 scale-105': isDragActive || dragOver,
-                  'border-muted-foreground/25 hover:border-orange-400 hover:bg-orange-500/5': !isLoading && !isDragActive,
-                  'border-muted-foreground/10 cursor-not-allowed opacity-50': isLoading
+                  "border-orange-500 bg-orange-500/10 scale-105":
+                    isDragActive || dragOver,
+                  "border-muted-foreground/25 hover:border-orange-400 hover:bg-orange-500/5":
+                    !isLoading && !isDragActive,
+                  "border-muted-foreground/10 cursor-not-allowed opacity-50":
+                    isLoading,
                 }
               )}
             >
               <input {...getInputProps()} disabled={isLoading} />
-              
+
               <div className="space-y-6">
                 {isLoading ? (
                   <div className="space-y-4">
                     <motion.div
                       animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                      transition={{
+                        duration: 1,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
                       className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full mx-auto"
                     />
                     <Progress value={75} className="w-48 mx-auto" />
@@ -135,23 +143,25 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, isLoading, error 
                     </div>
                   </motion.div>
                 )}
-                
+
                 <div className="space-y-3">
                   <h3 className="text-2xl font-bold">
-                    {isLoading ? 'Processing your data...' : 'Upload your Swiggy data'}
+                    {isLoading
+                      ? "Processing your data..."
+                      : "Upload your Swiggy data"}
                   </h3>
-                  
+
                   <p className="text-muted-foreground text-lg">
                     {isLoading ? (
-                      'Analyzing your order history and generating insights'
+                      "Analyzing your order history and generating insights"
                     ) : isDragActive ? (
-                      'Drop your JSON file here'
+                      "Drop your JSON file here"
                     ) : (
                       <>
-                        Drag & drop your{' '}
+                        Drag & drop your{" "}
                         <code className="bg-muted px-2 py-1 rounded text-orange-500 font-mono text-sm">
                           allOrders.json
-                        </code>{' '}
+                        </code>{" "}
                         file here, or click to browse
                       </>
                     )}
@@ -174,7 +184,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, isLoading, error 
             {error && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
+                animate={{ opacity: 1, height: "auto" }}
                 className="mt-6"
               >
                 <Card className="border-destructive/50 bg-destructive/10">
@@ -182,7 +192,9 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, isLoading, error 
                     <div className="flex items-start space-x-3">
                       <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
                       <div>
-                        <h4 className="font-semibold text-destructive mb-1">Upload Failed</h4>
+                        <h4 className="font-semibold text-destructive mb-1">
+                          Upload Failed
+                        </h4>
                         <p className="text-destructive/80 text-sm">{error}</p>
                       </div>
                     </div>
@@ -217,7 +229,9 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, isLoading, error 
                   </div>
                   <div className="space-y-2">
                     <h3 className="text-lg font-semibold">{feature.title}</h3>
-                    <p className="text-muted-foreground text-sm">{feature.description}</p>
+                    <p className="text-muted-foreground text-sm">
+                      {feature.description}
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -236,7 +250,9 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, isLoading, error 
         <Card>
           <CardContent className="p-8">
             <div className="text-center space-y-6">
-              <h2 className="text-2xl font-bold">How to get your Swiggy data</h2>
+              <h2 className="text-2xl font-bold">
+                How to get your Swiggy data
+              </h2>
               <div className="grid md:grid-cols-3 gap-6 text-sm">
                 <div className="space-y-3">
                   <div className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center mx-auto font-bold">
@@ -244,7 +260,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, isLoading, error 
                   </div>
                   <h3 className="font-semibold">Request Data</h3>
                   <p className="text-muted-foreground">
-                    Go to Swiggy's Data Privacy page and request your order history
+                    Go to Swiggy's Data Privacy page and request your order
+                    history
                   </p>
                 </div>
                 <div className="space-y-3">
@@ -266,10 +283,12 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, isLoading, error 
                   </p>
                 </div>
               </div>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="mt-6"
-                onClick={() => window.open('https://www.swiggy.com/privacy-policy', '_blank')}
+                onClick={() =>
+                  window.open("https://www.swiggy.com/privacy-policy", "_blank")
+                }
               >
                 Visit Swiggy Privacy Page
               </Button>
@@ -290,9 +309,12 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, isLoading, error 
             <div className="flex items-start space-x-3">
               <Shield className="w-6 h-6 text-green-500 flex-shrink-0 mt-1" />
               <div className="space-y-2">
-                <h3 className="font-semibold text-green-500">Your Privacy is Protected</h3>
+                <h3 className="font-semibold text-green-500">
+                  Your Privacy is Protected
+                </h3>
                 <p className="text-sm text-muted-foreground">
-                  All data processing happens locally in your browser. We don't store, transmit, or have access to your personal information. 
+                  All data processing happens locally in your browser. We don't
+                  store, transmit, or have access to your personal information.
                   Your Swiggy data never leaves your device.
                 </p>
               </div>
