@@ -10,49 +10,67 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 
+interface FileInfo {
+  name: string;
+  size: number;
+  uploadDate: string;
+  orderCount: number;
+}
+
 interface FileUploadProps {
   onFileUpload: (file: File) => void;
   isLoading: boolean;
   error: string | null;
+  fileInfo: FileInfo | null;
+  onClearData: () => void;
 }
 
-const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, isLoading, error }) => {
+const FileUpload: React.FC<FileUploadProps> = ({
+  onFileUpload,
+  isLoading,
+  error,
+  fileInfo,
+  onClearData,
+}) => {
   const [dragOver, setDragOver] = useState(false);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    if (acceptedFiles.length > 0) {
-      onFileUpload(acceptedFiles[0]);
-    }
-  }, [onFileUpload]);
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      if (acceptedFiles.length > 0) {
+        onFileUpload(acceptedFiles[0]);
+      }
+    },
+    [onFileUpload]
+  );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'application/json': ['.json']
+      "application/json": [".json"],
     },
     multiple: false,
     onDragEnter: () => setDragOver(true),
     onDragLeave: () => setDragOver(false),
     onDropAccepted: () => setDragOver(false),
-    onDropRejected: () => setDragOver(false)
+    onDropRejected: () => setDragOver(false),
   });
 
   const features = [
     {
       icon: Shield,
-      title: 'Privacy First',
-      description: 'Your data never leaves your browser'
+      title: "Privacy First",
+      description: "Your data never leaves your browser",
     },
     {
       icon: Zap,
-      title: 'Instant Analysis',
-      description: 'Get insights in seconds'
+      title: "Instant Analysis",
+      description: "Get insights in seconds",
     },
     {
       icon: Eye,
-      title: 'Deep Insights',
-      description: 'Discover hidden patterns'
-    }
+      title: "Deep Insights",
+      description: "Discover hidden patterns",
+    },
   ];
 
   return (
@@ -92,6 +110,61 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, isLoading, error 
           </Badge>
         </div>
       </motion.div>
+
+      {/* File Status Section */}
+      {fileInfo && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.15 }}
+          className="max-w-3xl mx-auto"
+        >
+          <Card className="border-green-500/20 bg-green-500/5">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center">
+                    <FileText className="w-6 h-6 text-green-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-green-700 dark:text-green-400">
+                      Data Loaded: {fileInfo.name}
+                    </h3>
+                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                      <span>{fileInfo.orderCount.toLocaleString()} orders</span>
+                      <span>•</span>
+                      <span>
+                        {(fileInfo.size / (1024 * 1024)).toFixed(1)} MB
+                      </span>
+                      <span>•</span>
+                      <span>
+                        Uploaded{" "}
+                        {new Date(fileInfo.uploadDate).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Badge
+                    variant="outline"
+                    className="text-green-600 border-green-500/30"
+                  >
+                    Cached
+                  </Badge>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={onClearData}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
+                  >
+                    Clear Data
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
 
       {/* Upload Section */}
       <motion.div

@@ -29,6 +29,4 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true
   },
-  // Configure for GitHub Pages deployment
-  base: process.env.NODE_ENV === 'production' ? '/swig/' : '/',
 }) 
