@@ -1981,9 +1981,14 @@ const LocationsDashboard = ({ data }: { data: AnalyticsData | null }) => {
   // Get top locations stats
   const topLocation = currentLocationData[0];
   const totalUniqueLocations = currentLocationData.length;
-  const totalOrdersFromTop5 = currentLocationData
+  // Extract orderCount values to avoid union type issues
+  const top5OrderCounts = currentLocationData
     .slice(0, 5)
-    .reduce((sum, loc) => sum + loc.orderCount, 0);
+    .map((loc) => loc.orderCount);
+  const totalOrdersFromTop5 = top5OrderCounts.reduce(
+    (sum, count) => sum + count,
+    0
+  );
 
   return (
     <div className="space-y-6">
@@ -2136,10 +2141,8 @@ const LocationsDashboard = ({ data }: { data: AnalyticsData | null }) => {
             )}
           </div>
         </CardContent>
-      </Card>;
-      {
-        /* Top Locations List */
-      }
+      </Card>
+      ;{/* Top Locations List */}
       <Card>
         <CardHeader>
           <CardTitle>
@@ -2187,7 +2190,8 @@ const LocationsDashboard = ({ data }: { data: AnalyticsData | null }) => {
             })}
           </div>
         </CardContent>
-      </Card>;
+      </Card>
+      ;
     </div>
   );
 };
