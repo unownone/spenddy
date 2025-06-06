@@ -19,6 +19,16 @@ import {
   Sun,
   Award,
 } from "lucide-react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  CircleMarker,
+} from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import "./leaflet-custom.css";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -150,12 +160,7 @@ const navigationItems = [
     label: "Restaurants",
     description: "Restaurant analytics",
   },
-  {
-    id: "patterns",
-    icon: Clock,
-    label: "Patterns",
-    description: "Ordering patterns",
-  },
+
   {
     id: "locations",
     icon: MapPin,
@@ -553,8 +558,7 @@ const App: React.FC = () => {
         );
       case "restaurants":
         return <RestaurantsDashboard data={state.processedData} />;
-      case "patterns":
-        return <PatternsDashboard data={state.analyticsData} />;
+
       case "locations":
         return <LocationsDashboard data={state.analyticsData} />;
       case "insights":
@@ -1757,51 +1761,436 @@ const RestaurantsDashboard = ({ data }: { data: ProcessedOrder[] | null }) => {
   );
 };
 
-const PatternsDashboard = ({ data }: { data: AnalyticsData | null }) => (
-  <div className="space-y-6">
-    <div className="flex flex-col space-y-2">
-      <h1 className="text-3xl font-bold tracking-tight">Ordering Patterns</h1>
-      <p className="text-muted-foreground">
-        Analyze when and how you order food
-      </p>
+// Food type emoji mapping
+const getFoodEmoji = (restaurantName: string, items: string[] = []): string => {
+  const name = restaurantName.toLowerCase();
+  const itemsText = items.join(" ").toLowerCase();
+
+  // Pizza
+  if (
+    name.includes("pizza") ||
+    name.includes("domino") ||
+    name.includes("pizza hut")
+  )
+    return "🍕";
+
+  // Burgers & Fast Food
+  if (
+    name.includes("mcdonald") ||
+    name.includes("burger") ||
+    name.includes("kfc") ||
+    name.includes("subway") ||
+    itemsText.includes("burger")
+  )
+    return "🍔";
+
+  // Chinese
+  if (
+    name.includes("chinese") ||
+    name.includes("wok") ||
+    name.includes("noodle") ||
+    itemsText.includes("noodle") ||
+    itemsText.includes("fried rice")
+  )
+    return "🥡";
+
+  // Indian/Biryani
+  if (
+    name.includes("biryani") ||
+    name.includes("indian") ||
+    itemsText.includes("biryani") ||
+    itemsText.includes("curry")
+  )
+    return "🍛";
+
+  // Ice cream & Desserts
+  if (
+    name.includes("ice cream") ||
+    name.includes("baskin") ||
+    name.includes("dessert") ||
+    itemsText.includes("ice cream")
+  )
+    return "🍦";
+
+  // Coffee
+  if (
+    name.includes("coffee") ||
+    name.includes("starbucks") ||
+    name.includes("cafe")
+  )
+    return "☕";
+
+  // Healthy/Salads
+  if (
+    name.includes("salad") ||
+    name.includes("healthy") ||
+    itemsText.includes("salad")
+  )
+    return "🥗";
+
+  // Bakery
+  if (
+    name.includes("bakery") ||
+    name.includes("bread") ||
+    itemsText.includes("cake")
+  )
+    return "🥐";
+
+  // Default food emoji
+  return "🍽️";
+};
+
+// Fix for default Leaflet markers
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+  iconUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+});
+
+// Custom emoji icon
+const createEmojiIcon = (emoji: string, count: number) => {
+  const size = Math.min(40 + Math.log(count) * 5, 60); // Scale based on order count
+  return L.divIcon({
+    html: `<div style="
+      font-size: ${size}px; 
+      text-align: center; 
+      line-height: 1;
+      filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+      transform: scale(${Math.min(1 + count * 0.1, 2)});
+    ">${emoji}</div>`,
+    className: "emoji-marker",
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+  });
+};
+
+const LocationsDashboard = ({ data }: { data: AnalyticsData | null }) => {
+  const [mapView, setMapView] = useState<"restaurants" | "delivery">(
+    "restaurants"
+  );
+  const [mapCenter, setMapCenter] = useState<[number, number]>([
+    12.9716, 77.5946,
+  ]); // Default center
+
+  // Process restaurant location data
+  const restaurantLocationData = useMemo(() => {
+    if (!data?.orders) return [];
+
+    const locationMap = new Map<
+      string,
+      {
+        id: string;
+        restaurantName: string;
+        latitude: number;
+        longitude: number;
+        orders: ProcessedOrder[];
+        totalSpent: number;
+        orderCount: number;
+        locality: string;
+      }
+    >();
+
+    data.orders.forEach((order) => {
+      // Only process orders with restaurant coordinates
+      if (!order.restaurantLat || !order.restaurantLng) return;
+
+      const key = `${order.restaurantName}-${order.restaurantLocality}`;
+
+      if (!locationMap.has(key)) {
+        locationMap.set(key, {
+          id: key,
+          restaurantName: order.restaurantName,
+          latitude: order.restaurantLat,
+          longitude: order.restaurantLng,
+          orders: [],
+          totalSpent: 0,
+          orderCount: 0,
+          locality: order.restaurantLocality,
+        });
+      }
+
+      const location = locationMap.get(key);
+      location.orders.push(order);
+      location.totalSpent += order.orderTotal;
+      location.orderCount += 1;
+    });
+
+    return Array.from(locationMap.values()).sort(
+      (a, b) => b.orderCount - a.orderCount
+    );
+  }, [data]);
+
+  // Process delivery location data
+  const deliveryLocationData = useMemo(() => {
+    if (!data?.orders) return [];
+
+    const locationMap = new Map<
+      string,
+      {
+        id: string;
+        deliveryArea: string;
+        latitude: number;
+        longitude: number;
+        orders: ProcessedOrder[];
+        totalSpent: number;
+        orderCount: number;
+        restaurants: Set<string>;
+      }
+    >();
+
+    data.orders.forEach((order) => {
+      // Only process orders with delivery coordinates
+      if (!order.deliveryLat || !order.deliveryLng) return;
+
+      const key = `${order.deliveryArea}-${order.deliveryLat.toFixed(
+        4
+      )}-${order.deliveryLng.toFixed(4)}`;
+
+      if (!locationMap.has(key)) {
+        locationMap.set(key, {
+          id: key,
+          deliveryArea: order.deliveryArea,
+          latitude: order.deliveryLat,
+          longitude: order.deliveryLng,
+          orders: [],
+          totalSpent: 0,
+          orderCount: 0,
+          restaurants: new Set(),
+        });
+      }
+
+      const location = locationMap.get(key);
+      location.orders.push(order);
+      location.totalSpent += order.orderTotal;
+      location.orderCount += 1;
+      location.restaurants.add(order.restaurantName);
+    });
+
+    return Array.from(locationMap.values()).sort(
+      (a, b) => b.orderCount - a.orderCount
+    );
+  }, [data]);
+
+  const currentLocationData =
+    mapView === "restaurants" ? restaurantLocationData : deliveryLocationData;
+
+  // Get top locations stats
+  const topLocation = currentLocationData[0];
+  const totalUniqueLocations = currentLocationData.length;
+  const totalOrdersFromTop5 = currentLocationData
+    .slice(0, 5)
+    .reduce((sum, loc) => sum + loc.orderCount, 0);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight">Location Analysis</h1>
+        <p className="text-muted-foreground">
+          Interactive map of your food ordering locations with order frequency
+          heatmap
+        </p>
+      </div>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <MapPin className="h-5 w-5 text-orange-500" />
+              <div>
+                <p className="text-sm font-medium">Unique Locations</p>
+                <p className="text-2xl font-bold">{totalUniqueLocations}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <Award className="h-5 w-5 text-orange-500" />
+              <div>
+                <p className="text-sm font-medium">Top Location</p>
+                <p className="text-lg font-bold truncate">
+                  {topLocation
+                    ? "restaurantName" in topLocation
+                      ? topLocation.restaurantName
+                      : topLocation.deliveryArea
+                    : "N/A"}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {topLocation?.orderCount || 0} orders
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <BarChart3 className="h-5 w-5 text-orange-500" />
+              <div>
+                <p className="text-sm font-medium">Top 5 Orders</p>
+                <p className="text-2xl font-bold">{totalOrdersFromTop5}</p>
+                <p className="text-xs text-muted-foreground">
+                  {totalOrdersFromTop5 > 0
+                    ? Math.round(
+                        (totalOrdersFromTop5 / (data?.orders.length || 1)) * 100
+                      )
+                    : 0}
+                  % of total
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      {/* Map View Toggle */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center space-x-2">
+                <MapPin className="h-5 w-5" />
+                <span>Order Locations Map</span>
+              </CardTitle>
+              <CardDescription>
+                {mapView === "restaurants"
+                  ? "Restaurant locations with order frequency"
+                  : "Delivery locations with order heatmap"}
+              </CardDescription>
+            </div>
+            <div className="flex space-x-2">
+              <Button
+                variant={mapView === "restaurants" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setMapView("restaurants")}
+              >
+                🍴 Restaurants
+              </Button>
+              <Button
+                variant={mapView === "delivery" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setMapView("delivery")}
+              >
+                🏠 Delivery
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="h-96 w-full">
+            {currentLocationData.length > 0 ? (
+              <MapContainer
+                center={mapCenter}
+                zoom={12}
+                style={{ height: "100%", width: "100%" }}
+                className="leaflet-container-dark"
+              >
+                <TileLayer
+                  url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                />
+                {currentLocationData.map((location) => {
+                  const emoji =
+                    mapView === "restaurants"
+                      ? getFoodEmoji(
+                          (location as any).restaurantName,
+                          (location as any).orders?.[0]?.items || []
+                        )
+                      : "🏠";
+                  return (
+                    <Marker
+                      key={location.id}
+                      position={[location.latitude, location.longitude]}
+                      icon={createEmojiIcon(emoji, location.orderCount)}
+                    >
+                      <Popup>
+                        <div className="text-sm">
+                          <h4 className="font-semibold">
+                            {"restaurantName" in location
+                              ? location.restaurantName
+                              : location.deliveryArea}
+                          </h4>
+                          <p>Orders: {location.orderCount}</p>
+                          <p>Total: ₹{location.totalSpent.toLocaleString()}</p>
+                          {"locality" in location && (
+                            <p className="text-xs text-gray-600">
+                              {location.locality}
+                            </p>
+                          )}
+                        </div>
+                      </Popup>
+                    </Marker>
+                  );
+                })}
+              </MapContainer>
+            ) : (
+              <div className="flex items-center justify-center h-full text-muted-foreground">
+                No location data available
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>;
+      {
+        /* Top Locations List */
+      }
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            Top {mapView === "restaurants" ? "Restaurants" : "Delivery Areas"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {currentLocationData.slice(0, 10).map((location, index) => {
+              const emoji =
+                "restaurantName" in location
+                  ? getFoodEmoji(location.restaurantName)
+                  : "🏠";
+              return (
+                <div
+                  key={location.id}
+                  className="flex items-center space-x-4 p-3 rounded-lg border"
+                >
+                  <div className="text-2xl">{emoji}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center space-x-2">
+                      <Badge variant="secondary" className="text-xs">
+                        #{index + 1}
+                      </Badge>
+                      <h4 className="font-semibold truncate">
+                        {"restaurantName" in location
+                          ? location.restaurantName
+                          : location.deliveryArea}
+                      </h4>
+                    </div>
+                    {"locality" in location && location.locality && (
+                      <p className="text-xs text-muted-foreground truncate mt-1">
+                        {location.locality}
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold">{location.orderCount} orders</p>
+                    <p className="text-sm text-muted-foreground">
+                      ₹{location.totalSpent.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>;
     </div>
-
-    <Card className="flex flex-col items-center justify-center h-96">
-      <CardContent className="text-center space-y-4 pt-6">
-        <Clock className="h-16 w-16 mx-auto text-muted-foreground opacity-50" />
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold">Coming Soon</h3>
-          <p className="text-muted-foreground">
-            Pattern analysis features are being built
-          </p>
-        </div>
-      </CardContent>
-    </Card>
-  </div>
-);
-
-const LocationsDashboard = ({ data }: { data: AnalyticsData | null }) => (
-  <div className="space-y-6">
-    <div className="flex flex-col space-y-2">
-      <h1 className="text-3xl font-bold tracking-tight">Location Analysis</h1>
-      <p className="text-muted-foreground">
-        Explore where you order from most frequently
-      </p>
-    </div>
-
-    <Card className="flex flex-col items-center justify-center h-96">
-      <CardContent className="text-center space-y-4 pt-6">
-        <MapPin className="h-16 w-16 mx-auto text-muted-foreground opacity-50" />
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold">Coming Soon</h3>
-          <p className="text-muted-foreground">
-            Location analytics are being developed
-          </p>
-        </div>
-      </CardContent>
-    </Card>
-  </div>
-);
+  );
+};
 
 const InsightsDashboard = ({ data }: { data: AnalyticsData | null }) => (
   <div className="space-y-6">

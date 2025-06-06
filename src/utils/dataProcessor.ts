@@ -64,6 +64,27 @@ export const processOrderData = (rawOrders: SwiggyOrder[]): ProcessedOrder[] => 
       distance = safeFloat(order.restaurant_customer_distance);
     }
     
+    // Extract coordinates
+    let deliveryLat: number | undefined;
+    let deliveryLng: number | undefined;
+    let restaurantLat: number | undefined;
+    let restaurantLng: number | undefined;
+    
+    // Get delivery coordinates
+    if (order.delivery_address?.lat && order.delivery_address?.lng) {
+      deliveryLat = safeFloat(order.delivery_address.lat);
+      deliveryLng = safeFloat(order.delivery_address.lng);
+    }
+    
+    // Get restaurant coordinates from restaurant_lat_lng string (format: "lat,lng")
+    if (order.restaurant_lat_lng) {
+      const coords = order.restaurant_lat_lng.split(',');
+      if (coords.length === 2) {
+        restaurantLat = safeFloat(coords[0]);
+        restaurantLng = safeFloat(coords[1]);
+      }
+    }
+    
     return {
       orderId: order.order_id,
       orderTime,
@@ -83,6 +104,12 @@ export const processOrderData = (rawOrders: SwiggyOrder[]): ProcessedOrder[] => 
       deliveryArea: order.delivery_address.area,
       deliveryCity: order.delivery_address.city,
       deliveryAnnotation: order.delivery_address.annotation || '',
+      
+      // Coordinates
+      deliveryLat,
+      deliveryLng,
+      restaurantLat,
+      restaurantLng,
       
       // Charges breakdown
       deliveryCharges,

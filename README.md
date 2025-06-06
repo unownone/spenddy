@@ -276,7 +276,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- **Swiggy** for providing the data export feature
 - **React Team** for the amazing framework
 - **Tailwind CSS** for the utility-first CSS framework
 - **Chart.js & Recharts** for beautiful visualizations

@@ -1,0 +1,56 @@
+/* Custom Leaflet styles for dark theme compatibility */
+
+.emoji-marker {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.leaflet-popup-tip {
+  background: hsl(var(--background));
+}
+
+.leaflet-container {
+  background: hsl(var(--background));
+}
+
+.leaflet-control-zoom {
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 6px;
+}
+
+.leaflet-control-zoom a {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.leaflet-control-zoom a:hover {
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+.leaflet-control-attribution {
+  background: hsl(var(--background));
+  color: hsl(var(--muted-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .leaflet-popup-content-wrapper {
+    max-width: 250px;
+  }
+  
+  .leaflet-popup-content {
+    font-size: 14px;
+  }
+} 

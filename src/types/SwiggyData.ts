@@ -440,6 +440,12 @@ export interface ProcessedOrder {
   deliveryCity: string;
   deliveryAnnotation: string;
   
+  // Coordinates
+  deliveryLat?: number;
+  deliveryLng?: number;
+  restaurantLat?: number;
+  restaurantLng?: number;
+  
   // Charges breakdown
   deliveryCharges: number;
   packingCharges: number;

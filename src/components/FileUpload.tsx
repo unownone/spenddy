@@ -69,7 +69,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
     {
       icon: Eye,
       title: "Deep Insights",
-      description: "Discover hidden patterns",
+      description: "Interactive location maps",
     },
   ];
 
@@ -91,7 +91,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
           </h1>
           <p className="text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             Transform your Swiggy order history into actionable insights and
-            discover your food ordering patterns
+            explore your food ordering locations
           </p>
         </div>
 
