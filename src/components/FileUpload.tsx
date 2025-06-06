@@ -313,7 +313,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
         })}
       </motion.div>
 
-      {/* How to Guide */}
+      {/* Coming Soon */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -322,49 +322,15 @@ const FileUpload: React.FC<FileUploadProps> = ({
       >
         <Card>
           <CardContent className="p-8">
-            <div className="text-center space-y-6">
+            <div className="text-center space-y-4">
               <h2 className="text-2xl font-bold">
                 How to get your Swiggy data
               </h2>
-              <div className="grid md:grid-cols-3 gap-6 text-sm">
-                <div className="space-y-3">
-                  <div className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center mx-auto font-bold">
-                    1
-                  </div>
-                  <h3 className="font-semibold">Request Data</h3>
-                  <p className="text-muted-foreground">
-                    Go to Swiggy's Data Privacy page and request your order
-                    history
-                  </p>
-                </div>
-                <div className="space-y-3">
-                  <div className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center mx-auto font-bold">
-                    2
-                  </div>
-                  <h3 className="font-semibold">Download JSON</h3>
-                  <p className="text-muted-foreground">
-                    Look for the allOrders.json file in the downloaded data
-                  </p>
-                </div>
-                <div className="space-y-3">
-                  <div className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center mx-auto font-bold">
-                    3
-                  </div>
-                  <h3 className="font-semibold">Upload & Analyze</h3>
-                  <p className="text-muted-foreground">
-                    Upload the file here and get instant insights
-                  </p>
-                </div>
-              </div>
-              <Button
-                variant="outline"
-                className="mt-6"
-                onClick={() =>
-                  window.open("https://www.swiggy.com/privacy-policy", "_blank")
-                }
-              >
-                Visit Swiggy Privacy Page
-              </Button>
+              <p className="text-lg text-muted-foreground">Coming Soon!</p>
+              <p className="text-sm text-muted-foreground">
+                We're working on detailed instructions to help you get your
+                Swiggy data.
+              </p>
             </div>
           </CardContent>
         </Card>

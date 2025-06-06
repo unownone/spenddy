@@ -1,5 +1,7 @@
 # Spenddy 🍕
 
+![Spenddy Demo](./assets/demo.gif)
+
 **Advanced Swiggy Order Analytics Platform**
 
 A modern, React + TypeScript web application that transforms your Swiggy order data into beautiful, interactive analytics dashboards. Built with cutting-edge technologies for the best user experience.
@@ -12,6 +14,7 @@ A modern, React + TypeScript web application that transforms your Swiggy order d
 ## ✨ Features
 
 ### 📊 **Comprehensive Analytics**
+
 - **Overview Dashboard** - Key metrics and summary statistics
 - **Spending Analysis** - Monthly and yearly spending patterns
 - **Restaurant Analytics** - Favorite restaurants and cuisine preferences
@@ -20,6 +23,7 @@ A modern, React + TypeScript web application that transforms your Swiggy order d
 - **Smart Insights** - AI-powered insights and recommendations
 
 ### 🎨 **Modern UI/UX**
+
 - **Dark Theme** - Beautiful, modern dark interface
 - **Responsive Design** - Works perfectly on all devices
 - **Smooth Animations** - Framer Motion powered transitions
@@ -27,11 +31,13 @@ A modern, React + TypeScript web application that transforms your Swiggy order d
 - **Drag & Drop Upload** - Intuitive file upload experience
 
 ### 🔒 **Privacy-First**
+
 - **Client-Side Processing** - All data processed in your browser
 - **No Server Required** - Complete frontend-only solution
 - **Your Data Stays Private** - Nothing sent to external servers
 
 ### 🚀 **Performance**
+
 - **Fast Processing** - Optimized data processing algorithms
 - **Real-time Filtering** - Dynamic time-based filtering
 - **Lazy Loading** - Components load as needed
@@ -53,23 +59,26 @@ A modern, React + TypeScript web application that transforms your Swiggy order d
 
 ### Prerequisites
 
-- Node.js 16+ 
+- Node.js 16+
 - npm or yarn
 
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <your-repo-url>
    cd swig
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Start the development server**
+
    ```bash
    npm start
    ```
@@ -195,6 +204,7 @@ colors: {
 ## 📊 Analytics Features
 
 ### Spending Analysis
+
 - Monthly spending trends
 - Yearly comparison
 - Fees breakdown (delivery, packing, convenience)
@@ -202,6 +212,7 @@ colors: {
 - Average order value trends
 
 ### Restaurant Analytics
+
 - Top restaurants by order count
 - Top restaurants by spending
 - Cuisine preferences
@@ -209,6 +220,7 @@ colors: {
 - Location-based restaurant analysis
 
 ### Order Patterns
+
 - Hourly ordering patterns
 - Day-of-week analysis
 - Peak vs off-peak ordering
@@ -216,12 +228,14 @@ colors: {
 - Order frequency analysis
 
 ### Location Insights
+
 - Delivery area analysis
 - Distance patterns
 - Area-wise spending
 - Location-based preferences
 
 ### Smart Insights
+
 - Highest order detection
 - Farthest delivery analysis
 - Longest delivery times
