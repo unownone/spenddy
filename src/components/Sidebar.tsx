@@ -28,56 +28,54 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   {
-    id: 'upload',
-    label: 'Upload Data',
+    id: "upload",
+    label: "Upload Data",
     icon: Upload,
-    description: 'Upload your Swiggy order data'
+    description: "Upload your Swiggy order data",
   },
   {
-    id: 'overview',
-    label: 'Overview',
+    id: "overview",
+    label: "Overview",
     icon: BarChart3,
     disabled: true,
-    description: 'General overview and key metrics'
+    description: "General overview and key metrics",
   },
   {
-    id: 'spending',
-    label: 'Spending Analysis',
+    id: "spending",
+    label: "Spending Analysis",
     icon: CreditCard,
     disabled: true,
-    description: 'Monthly, yearly spending patterns'
+    description: "Monthly, yearly spending patterns",
   },
   {
-    id: 'restaurants',
-    label: 'Restaurants',
+    id: "restaurants",
+    label: "Restaurants",
     icon: Store,
     disabled: true,
-    description: 'Favorite restaurants and cuisines'
+    description: "Favorite restaurants and cuisines",
   },
+
   {
-    id: 'patterns',
-    label: 'Order Patterns',
-    icon: Clock,
-    disabled: true,
-    description: 'Time-based ordering behavior'
-  },
-  {
-    id: 'locations',
-    label: 'Locations',
+    id: "locations",
+    label: "Locations",
     icon: MapPin,
     disabled: true,
-    description: 'Delivery locations and areas'
+    description: "Delivery locations and areas",
   },
   {
-    id: 'insights',
-    label: 'Smart Insights',
+    id: "insights",
+    label: "Smart Insights",
     icon: Lightbulb,
     disabled: true,
-    description: 'AI-powered insights and recommendations'
-  }
+    description: "AI-powered insights and recommendations",
+  },
 ];
 
-const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange, hasData }) => {
+const Sidebar: React.FC<SidebarProps> = ({
+  activeView,
+  onViewChange,
+  hasData,
+}) => {
   const handleItemClick = (itemId: string, disabled: boolean) => {
     if (!disabled) {
       onViewChange(itemId);
@@ -88,13 +86,17 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange, hasData }) 
     <aside className="w-64 bg-dark-800 border-r border-border min-h-screen">
       <div className="p-6">
         <div className="mb-8">
-          <div className="flex items-center space-x-2 mb-2">
-            <TrendingUp className="w-5 h-5 text-primary-500" />
-            <h2 className="text-lg font-semibold text-white">Analytics</h2>
+          <div className="flex items-center space-x-3 mb-3">
+            <img
+              src="/logo.png"
+              alt="Spenddy Logo"
+              className="w-8 h-8 object-contain rounded"
+            />
+            <div>
+              <h2 className="text-lg font-semibold text-white">Spenddy</h2>
+              <p className="text-xs text-gray-400">Analytics Dashboard</p>
+            </div>
           </div>
-          <p className="text-sm text-gray-400">
-            Explore your food ordering insights
-          </p>
         </div>
 
         <nav className="space-y-2">
@@ -114,14 +116,14 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange, hasData }) 
                   onClick={() => handleItemClick(item.id, isDisabled)}
                   disabled={isDisabled}
                   className={clsx(
-                    'sidebar-item w-full text-left group relative',
+                    "sidebar-item w-full text-left group relative",
                     {
-                      'active': isActive && !isDisabled,
-                      'opacity-50 cursor-not-allowed': isDisabled,
-                      'hover:scale-105': !isDisabled
+                      active: isActive && !isDisabled,
+                      "opacity-50 cursor-not-allowed": isDisabled,
+                      "hover:scale-105": !isDisabled,
                     }
                   )}
-                  title={isDisabled ? 'Upload data first' : item.description}
+                  title={isDisabled ? "Upload data first" : item.description}
                 >
                   <Icon className="w-5 h-5 mr-3 flex-shrink-0" />
                   <div className="flex-1">
@@ -130,7 +132,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange, hasData }) 
                       {item.description}
                     </div>
                   </div>
-                  
+
                   {isDisabled && (
                     <div className="absolute inset-0 bg-dark-700/50 rounded-lg flex items-center justify-center">
                       <Upload className="w-4 h-4 text-gray-500" />
@@ -145,12 +147,14 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange, hasData }) 
         {/* Status Indicator */}
         <div className="mt-8 pt-6 border-t border-border">
           <div className="flex items-center space-x-2">
-            <div className={clsx(
-              'w-2 h-2 rounded-full',
-              hasData ? 'bg-green-500' : 'bg-gray-500'
-            )} />
+            <div
+              className={clsx(
+                "w-2 h-2 rounded-full",
+                hasData ? "bg-green-500" : "bg-gray-500"
+              )}
+            />
             <span className="text-sm text-gray-400">
-              {hasData ? 'Data loaded' : 'No data uploaded'}
+              {hasData ? "Data loaded" : "No data uploaded"}
             </span>
           </div>
         </div>

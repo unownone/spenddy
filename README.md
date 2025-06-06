@@ -1,273 +1,196 @@
-# Spenddy 🍕
+# Spenddy
 
-![Spenddy Demo](./assets/demo.gif)
+<div align="center">
+  <img src="./public/logo.png" alt="Spenddy Logo" width="200" height="200" />
+  
+  **Transform Your Swiggy Order Data into Beautiful Analytics**
+  
+  A modern, privacy-first web application that analyzes your Swiggy order history with interactive dashboards and insightful visualizations.
 
-**Advanced Swiggy Order Analytics Platform**
-
-A modern, React + TypeScript web application that transforms your Swiggy order data into beautiful, interactive analytics dashboards. Built with cutting-edge technologies for the best user experience.
-
-![Spenddy Preview](https://img.shields.io/badge/Status-Ready%20for%20Development-green)
-![React](https://img.shields.io/badge/React-18.2.0-blue)
-![TypeScript](https://img.shields.io/badge/TypeScript-4.9.0-blue)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.3.0-blue)
+  [![React](https://img.shields.io/badge/React-18.2.0-blue)](https://reactjs.org/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5.0.0-blue)](https://www.typescriptlang.org/)
+  [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.3.0-blue)](https://tailwindcss.com/)
+  [![Vite](https://img.shields.io/badge/Vite-4.4.0-purple)](https://vitejs.dev/)
+</div>
 
 ## ✨ Features
 
 ### 📊 **Comprehensive Analytics**
 
-- **Overview Dashboard** - Key metrics and summary statistics
-- **Spending Analysis** - Monthly and yearly spending patterns
-- **Restaurant Analytics** - Favorite restaurants and cuisine preferences
-- **Order Patterns** - Time-based ordering behavior analysis
-- **Location Insights** - Delivery location and area analysis
-- **Smart Insights** - AI-powered insights and recommendations
+- **📈 Overview Dashboard** - Key metrics, order frequency, and spending summaries
+- **💰 Spending Analysis** - Monthly/yearly trends with detailed breakdowns
+- **🍽️ Restaurant Analytics** - Top restaurants, cuisine preferences, and ordering patterns
+- **📍 Location Insights** - Interactive map with real restaurant and delivery coordinates
+- **⏰ Order Activity** - GitHub-style heatmap showing your ordering patterns throughout the year
 
-### 🎨 **Modern UI/UX**
+### 🎨 **Modern Experience**
 
-- **Dark Theme** - Beautiful, modern dark interface
-- **Responsive Design** - Works perfectly on all devices
-- **Smooth Animations** - Framer Motion powered transitions
-- **Interactive Charts** - Chart.js and Recharts visualizations
-- **Drag & Drop Upload** - Intuitive file upload experience
+- **🌙 Beautiful Dark Theme** - Eye-friendly interface with smooth animations
+- **📱 Fully Responsive** - Perfect experience on desktop, tablet, and mobile
+- **🎯 Interactive Visualizations** - Dynamic charts and maps powered by Chart.js and Leaflet
+- **⚡ Fast & Smooth** - Optimized performance with React 18 and modern build tools
 
-### 🔒 **Privacy-First**
+### 🔒 **Privacy-First Design**
 
-- **Client-Side Processing** - All data processed in your browser
-- **No Server Required** - Complete frontend-only solution
-- **Your Data Stays Private** - Nothing sent to external servers
-
-### 🚀 **Performance**
-
-- **Fast Processing** - Optimized data processing algorithms
-- **Real-time Filtering** - Dynamic time-based filtering
-- **Lazy Loading** - Components load as needed
-- **Optimized Rendering** - React.memo and useMemo optimizations
-
-## 🛠 Tech Stack
-
-- **Frontend Framework**: React 18.2 with TypeScript
-- **Styling**: Tailwind CSS with custom dark theme
-- **Animations**: Framer Motion
-- **Charts**: Chart.js & Recharts
-- **Icons**: Lucide React
-- **File Upload**: React Dropzone
-- **Date Handling**: date-fns
-- **Build Tool**: Create React App
-- **State Management**: React Hooks (useState, useMemo, useCallback)
+- **🏠 100% Client-Side** - All data processing happens in your browser
+- **🔐 Zero Data Collection** - Your personal data never leaves your device
+- **📤 No External Servers** - Complete privacy and security guaranteed
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js 16+
-- npm or yarn
+- Node.js 18+
+- pnpm (recommended) or npm
 
 ### Installation
 
-1. **Clone the repository**
+1. **Clone and install**
 
    ```bash
    git clone <your-repo-url>
    cd swig
+   pnpm install
    ```
 
-2. **Install dependencies**
+2. **Start development server**
 
    ```bash
-   npm install
+   pnpm dev
    ```
 
-3. **Start the development server**
-
-   ```bash
-   npm start
-   ```
-
-4. **Open your browser**
+3. **Open your browser**
    Navigate to `http://localhost:3000`
 
-### Production Build
+### 📦 Production Build
 
 ```bash
-pnpm run build
+pnpm build
 ```
 
-This creates an optimized production build in the `dist/` folder.
+## 📱 How to Use
 
-### 🌐 GitHub Pages Deployment
+### Step 1: Get Your Swiggy Data
 
-This project is configured for automatic deployment to GitHub Pages using GitHub Actions.
+1. Login to [Swiggy.com](https://swiggy.com)
+2. Go to **Account** → **Privacy** → **Download your data**
+3. Request data export and download the ZIP file when ready
 
-#### Setup Instructions
+### Step 2: Upload to Spenddy
 
-1. **Enable GitHub Pages**
-   - Go to your repository → Settings → Pages
-   - Source: "GitHub Actions"
-   - The site will be available at: `https://yourusername.github.io/swig/`
+1. Extract the downloaded ZIP file
+2. Find the `allOrders.json` file
+3. Drag and drop it into Spenddy or use the upload button
 
-2. **Automatic Deployment**
-   - Push to `main` branch triggers automatic deployment
-   - GitHub Actions will build and deploy your app
-   - Check the Actions tab for deployment status
+### Step 3: Explore Your Analytics
 
-3. **Custom Domain (Optional)**
-   - Add a `CNAME` file to the `public/` folder with your domain
-   - Configure your domain's DNS to point to GitHub Pages
+- **📊 Overview**: Total orders, spending, and key statistics
+- **💳 Spending**: Detailed spending patterns and trends
+- **🏪 Restaurants**: Your favorite places and cuisine preferences  
+- **🗺️ Locations**: Interactive map with order locations and heatmaps
+- **📅 Activity**: Year-long order activity heatmap
 
-#### Manual Deployment
+## 🏗️ Tech Stack
 
-If you prefer manual deployment:
+| Category | Technology |
+|----------|------------|
+| **Framework** | React 18 + TypeScript |
+| **Styling** | Tailwind CSS + Custom Dark Theme |
+| **Build Tool** | Vite |
+| **Charts** | Chart.js + Recharts |
+| **Maps** | Leaflet + React-Leaflet |
+| **Animations** | Framer Motion |
+| **Icons** | Lucide React |
+| **Date Utils** | date-fns |
+
+## 🌐 Deployment
+
+### GitHub Pages (Recommended)
+
+1. Fork/clone this repository
+2. Enable GitHub Pages in repository settings
+3. Choose "GitHub Actions" as source
+4. Push to `main` branch for automatic deployment
+
+### Manual Deployment
 
 ```bash
-# Build the project
-pnpm run build
-
-# Deploy to gh-pages branch (requires gh-pages package)
-npm install -g gh-pages
-gh-pages -d dist
+pnpm build
+# Deploy the dist/ folder to your hosting platform
 ```
 
-## 📱 Usage
+## 🎨 Screenshots
 
-### Getting Your Data
-
-1. **Login to Swiggy**
-   - Go to [Swiggy.com](https://swiggy.com)
-   - Login to your account
-
-2. **Download Your Data**
-   - Navigate to Account → Privacy → Download your data
-   - Request your data export
-   - Download the ZIP file when ready
-
-3. **Upload to Spenddy**
-   - Extract the ZIP file
-   - Find the `allOrders.json` file
-   - Drag and drop it into Spenddy
-
-### Exploring Analytics
-
-Once your data is uploaded, you can:
-
-- **📈 Overview**: See total orders, spending, and key metrics
-- **💰 Spending**: Analyze monthly/yearly spending patterns
-- **🍽 Restaurants**: Discover your favorite restaurants and cuisines
-- **⏰ Patterns**: Understand your ordering behavior by time
-- **📍 Locations**: Explore delivery locations and areas
-- **💡 Insights**: Get smart insights about your ordering habits
-
-## 🏗 Project Structure
-
-```
-src/
-├── components/           # React components
-│   ├── dashboards/      # Dashboard components
-│   ├── Header.tsx       # App header
-│   ├── Sidebar.tsx      # Navigation sidebar
-│   └── FileUpload.tsx   # File upload component
-├── types/               # TypeScript type definitions
-│   └── SwiggyData.ts    # Data interfaces
-├── utils/               # Utility functions
-│   └── dataProcessor.ts # Data processing logic
-├── App.tsx              # Main app component
-├── index.tsx            # App entry point
-└── index.css            # Global styles
-```
-
-## 🎨 Customization
-
-### Theme Colors
-
-The app uses a custom color palette defined in `tailwind.config.js`:
-
-```javascript
-colors: {
-  primary: {
-    500: '#ff6b35',  // Swiggy orange
-    // ... other shades
-  },
-  dark: {
-    900: '#0a0a0a',  // Background
-    800: '#212529',  // Cards
-    // ... other shades
-  }
-}
-```
-
-### Adding New Analytics
-
-1. **Create processing function** in `utils/dataProcessor.ts`
-2. **Add new dashboard component** in `components/dashboards/`
-3. **Update routing** in `App.tsx`
-4. **Add navigation item** in `Sidebar.tsx`
+<div align="center">
+  <img src="./assets/demo.gif" alt="Spenddy Demo" width="100%" />
+</div>
 
 ## 📊 Analytics Features
 
 ### Spending Analysis
 
-- Monthly spending trends
-- Yearly comparison
-- Fees breakdown (delivery, packing, convenience)
-- Discount and coupon analysis
-- Average order value trends
+- 📈 Monthly and yearly spending trends
+- 💰 Breakdown by fees (delivery, packing, convenience)
+- 🎫 Discount and coupon analysis
+- 📊 Average order value patterns
 
-### Restaurant Analytics
+### Restaurant Analytics  
 
-- Top restaurants by order count
-- Top restaurants by spending
-- Cuisine preferences
-- Restaurant performance over time
-- Location-based restaurant analysis
-
-### Order Patterns
-
-- Hourly ordering patterns
-- Day-of-week analysis
-- Peak vs off-peak ordering
-- Seasonal trends
-- Order frequency analysis
+- 🏆 Top restaurants by order count and spending
+- 🍜 Cuisine preference analysis
+- 📍 Location-based restaurant insights
+- ⭐ Restaurant performance tracking
 
 ### Location Insights
 
-- Delivery area analysis
-- Distance patterns
-- Area-wise spending
-- Location-based preferences
+- 🗺️ Interactive map with real coordinates
+- 🏠 Delivery location analysis  
+- 🏪 Restaurant location patterns
+- 📊 Geographic spending distribution
 
-### Smart Insights
+### Order Activity
 
-- Highest order detection
-- Farthest delivery analysis
-- Longest delivery times
-- Monthly favorites comparison
-- Cancelled order analysis
+- 📅 Year-long GitHub-style heatmap
+- ⏰ Peak ordering times and days
+- 📈 Order frequency patterns
+- 🎯 Activity trends and insights
 
-## 🔧 Configuration
+## 🛠️ Development
 
-### Environment Variables
+### Project Structure
 
-Create a `.env` file for any environment-specific settings:
-
-```bash
-REACT_APP_VERSION=1.0.0
-REACT_APP_BUILD_DATE=2024-01-01
+```
+src/
+├── components/
+│   ├── dashboards/         # Analytics dashboards
+│   ├── ui/                # Reusable UI components  
+│   ├── Header.tsx         # App header with logo
+│   ├── Sidebar.tsx        # Navigation sidebar
+│   └── FileUpload.tsx     # File upload component
+├── types/
+│   └── SwiggyData.ts      # TypeScript interfaces
+├── utils/
+│   └── dataProcessor.ts   # Data processing logic
+├── hooks/                 # Custom React hooks
+├── lib/                   # Utility libraries
+└── App.tsx               # Main application
 ```
 
-### Build Optimization
+### Adding New Features
 
-The app is configured for optimal performance:
-
-- **Code Splitting**: Automatic route-based splitting
-- **Tree Shaking**: Unused code elimination
-- **Image Optimization**: Optimized assets
-- **Bundle Analysis**: `npm run build` shows bundle stats
+1. Create processing functions in `utils/dataProcessor.ts`
+2. Add dashboard component in `components/dashboards/`
+3. Update navigation in `src/App.tsx`
+4. Add menu item in `Sidebar.tsx`
 
 ## 🤝 Contributing
 
+We welcome contributions! Please feel free to submit a Pull Request.
+
 1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit changes: `git commit -m 'Add amazing feature'`
-4. Push to branch: `git push origin feature/amazing-feature`
+2. Create your feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add some amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
 5. Open a Pull Request
 
 ## 📄 License
@@ -276,21 +199,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- **React Team** for the amazing framework
-- **Tailwind CSS** for the utility-first CSS framework
-- **Chart.js & Recharts** for beautiful visualizations
-- **Framer Motion** for smooth animations
-
-## 📧 Support
-
-If you have any questions or need help:
-
-1. Check the [Issues](../../issues) page
-2. Create a new issue with detailed description
-3. Join our community discussions
+- Built with ❤️ for food lovers who want data-driven insights
+- Inspired by the need for privacy-first analytics tools
+- Thanks to the amazing open-source community
 
 ---
 
-**Made with ❤️ for food lovers who want to understand their ordering patterns**
-
-*Spenddy - Bringing clarity to your food ordering journey* 🍽️📊
+<div align="center">
+  <p><strong>Made with ❤️ for food lovers everywhere</strong></p>
+  <p><em>Spenddy - Your personal food ordering analytics companion</em></p>
+</div>

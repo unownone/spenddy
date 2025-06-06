@@ -26,19 +26,23 @@ const Header: React.FC<HeaderProps> = ({ hasData, totalOrders, totalSpent, dateR
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white text-lg font-bold">🍕</span>
+            <div className="w-10 h-10 flex items-center justify-center">
+              <img
+                src="/logo.png"
+                alt="Spenddy Logo"
+                className="w-full h-full object-contain rounded-lg"
+              />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gradient">Spenddy</h1>
-              <p className="text-gray-400 text-sm">Advanced Order Analytics</p>
+              <p className="text-gray-400 text-sm">Transform Your Data</p>
             </div>
           </motion.div>
 
           {/* Stats Summary */}
           {hasData && (
             <motion.div
-              className="flex items-center space-x-6"
+              className="hidden md:flex items-center space-x-6"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
@@ -66,6 +70,23 @@ const Header: React.FC<HeaderProps> = ({ hasData, totalOrders, totalSpent, dateR
                   </span>
                 </div>
               )}
+            </motion.div>
+          )}
+
+          {/* Mobile Stats Summary */}
+          {hasData && (
+            <motion.div
+              className="md:hidden flex flex-col items-end text-right"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <div className="text-sm text-gray-300">
+                {totalOrders.toLocaleString()} orders
+              </div>
+              <div className="text-sm text-green-500 font-semibold">
+                {formatCurrency(totalSpent)}
+              </div>
             </motion.div>
           )}
         </div>
