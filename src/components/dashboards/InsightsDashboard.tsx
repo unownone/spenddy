@@ -1,21 +1,11 @@
 import React from 'react';
-import { ProcessedOrder, AnalyticsData, TimeFilter } from '../../types/SwiggyData';
+import { AnalyticsData } from "../../types/SwiggyData";
 
 interface InsightsDashboardProps {
-  data: ProcessedOrder[];
-  analytics: AnalyticsData;
-  timeFilter: TimeFilter;
-  onTimeFilterChange: (filter: TimeFilter) => void;
-  timeFilterOptions: TimeFilter[];
+  data: AnalyticsData | null;
 }
 
-const InsightsDashboard: React.FC<InsightsDashboardProps> = ({ 
-  data, 
-  analytics, 
-  timeFilter, 
-  onTimeFilterChange, 
-  timeFilterOptions 
-}) => {
+const InsightsDashboard: React.FC<InsightsDashboardProps> = ({ data }) => {
   return (
     <div className="space-y-6">
       <div className="card">
@@ -26,7 +16,8 @@ const InsightsDashboard: React.FC<InsightsDashboardProps> = ({
         <div className="mt-8 text-center">
           <p className="text-gray-500">🚧 Dashboard under construction 🚧</p>
           <p className="text-sm text-gray-600 mt-2">
-            This dashboard will provide smart insights, recommendations, and advanced analytics.
+            This dashboard will provide smart insights, recommendations, and
+            advanced analytics.
           </p>
         </div>
       </div>
