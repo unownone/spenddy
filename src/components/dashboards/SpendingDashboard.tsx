@@ -95,7 +95,7 @@ const Pagination: React.FC<PaginationProps> = ({
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 0}
-          className="flex items-center space-x-1 px-3 py-1 rounded-md text-sm bg-dark-700 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-dark-600 transition-colors"
+          className="flex items-center space-x-1 px-3 py-1 rounded-md text-sm bg-secondary text-secondary-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-secondary/80 transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
           <span>Previous</span>
@@ -108,8 +108,8 @@ const Pagination: React.FC<PaginationProps> = ({
               onClick={() => onPageChange(i)}
               className={`w-8 h-8 rounded-md text-sm font-medium transition-colors ${
                 currentPage === i
-                  ? "bg-blue-500 text-white"
-                  : "bg-dark-700 text-gray-400 hover:bg-dark-600 hover:text-white"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
               }`}
             >
               {i + 1}
@@ -120,7 +120,7 @@ const Pagination: React.FC<PaginationProps> = ({
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages - 1}
-          className="flex items-center space-x-1 px-3 py-1 rounded-md text-sm bg-dark-700 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-dark-600 transition-colors"
+          className="flex items-center space-x-1 px-3 py-1 rounded-md text-sm bg-secondary text-secondary-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-secondary/80 transition-colors"
         >
           <span>Next</span>
           <ChevronRight className="w-4 h-4" />
@@ -208,10 +208,10 @@ const SpendingChart: React.FC<{
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className={`bg-dark-700 rounded-lg p-4 cursor-pointer border-2 transition-all ${
+              className={`bg-card rounded-lg p-4 cursor-pointer border-2 transition-all ${
                 isSelected
-                  ? "border-orange-500 shadow-glow"
-                  : "border-transparent hover:border-orange-400"
+                  ? "border-primary shadow-lg"
+                  : "border-transparent hover:border-primary/50"
               }`}
               onClick={() => onSelectMonth(isSelected ? null : point.month)}
               tabIndex={0}
@@ -223,16 +223,16 @@ const SpendingChart: React.FC<{
               <div className="flex items-center justify-between mb-3">
                 <span
                   className={`font-medium ${
-                    isSelected ? "text-orange-400" : "text-white"
+                    isSelected ? "text-primary" : "text-foreground"
                   }`}
                 >
                   {point.month}
                 </span>
                 <div className="text-right">
-                  <div className="text-white font-bold">
+                  <div className="text-foreground font-bold">
                     {formatCurrency(point.spending)}
                   </div>
-                  <div className="text-xs text-gray-400">
+                  <div className="text-xs text-muted-foreground">
                     {point.orders} orders
                   </div>
                 </div>
@@ -241,32 +241,32 @@ const SpendingChart: React.FC<{
               <div className="space-y-2">
                 {/* Spending Bar */}
                 <div>
-                  <div className="flex justify-between text-xs text-gray-400 mb-1">
+                  <div className="flex justify-between text-xs text-muted-foreground mb-1">
                     <span>Food & Total</span>
                     <span>{formatCurrency(point.spending)}</span>
                   </div>
-                  <div className="w-full bg-dark-600 rounded-full h-2">
+                  <div className="w-full bg-muted rounded-full h-2">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${spendingPercentage}%` }}
                       transition={{ duration: 0.8, delay: index * 0.1 }}
-                      className="h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+                      className="h-2 bg-primary rounded-full"
                     />
                   </div>
                 </div>
 
                 {/* Fees Bar */}
                 <div>
-                  <div className="flex justify-between text-xs text-gray-400 mb-1">
+                  <div className="flex justify-between text-xs text-muted-foreground mb-1">
                     <span>Fees & Tips</span>
                     <span>{formatCurrency(point.fees + point.tips)}</span>
                   </div>
-                  <div className="w-full bg-dark-600 rounded-full h-2">
+                  <div className="w-full bg-muted rounded-full h-2">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${feesPercentage}%` }}
                       transition={{ duration: 0.8, delay: index * 0.1 + 0.2 }}
-                      className="h-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-full"
+                      className="h-2 bg-destructive rounded-full"
                     />
                   </div>
                 </div>
@@ -396,16 +396,16 @@ const MonthBreakdown: React.FC<{
       {monthData ? (
         <div className="space-y-4">
           {/* Total for the month */}
-          <div className="bg-dark-700 rounded-lg p-4">
+          <div className="bg-card border border-border rounded-lg p-4">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-gray-400">Total Spent</span>
-              <span className="text-white font-bold text-lg">
+              <span className="text-muted-foreground">Total Spent</span>
+              <span className="text-foreground font-bold text-lg">
                 {formatCurrency(monthData.totalSpent)}
               </span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-400">Orders</span>
-              <span className="text-gray-300">{monthData.orderCount}</span>
+              <span className="text-muted-foreground">Orders</span>
+              <span className="text-foreground">{monthData.orderCount}</span>
             </div>
           </div>
 
@@ -420,7 +420,7 @@ const MonthBreakdown: React.FC<{
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="bg-dark-700 rounded-lg p-3"
+                  className="bg-card border border-border rounded-lg p-3"
                 >
                   <div className="flex items-center space-x-2 mb-2">
                     <div className={`w-3 h-3 rounded-full ${item.color}`} />

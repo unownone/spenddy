@@ -169,7 +169,10 @@ const OrderActivityHeatmap: React.FC<{ data: ProcessedOrder[] }> = ({
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          <div className="grid grid-cols-25 gap-0.5 text-xs">
+          <div
+            className="grid gap-0.5 text-xs"
+            style={{ gridTemplateColumns: "auto repeat(24, minmax(0, 1fr))" }}
+          >
             <div></div>
             {Array.from({ length: 24 }, (_, i) => (
               <div key={i} className="text-center text-gray-400 text-xs">
@@ -178,7 +181,11 @@ const OrderActivityHeatmap: React.FC<{ data: ProcessedOrder[] }> = ({
             ))}
           </div>
           {Object.entries(heatmapData).map(([day, hourData]) => (
-            <div key={day} className="grid grid-cols-25 gap-0.5 items-center">
+            <div
+              key={day}
+              className="grid gap-0.5 items-center"
+              style={{ gridTemplateColumns: "auto repeat(24, minmax(0, 1fr))" }}
+            >
               <div className="text-xs text-gray-400 w-8">{day}</div>
               {Object.entries(hourData).map(([hour, count]) => (
                 <div

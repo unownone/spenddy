@@ -17,8 +17,6 @@ import {
   Clock,
   Store,
   Lightbulb,
-  Moon,
-  Sun,
   Award,
 } from "lucide-react";
 
@@ -51,8 +49,6 @@ const LocationsDashboard = lazy(
 const InsightsDashboard = lazy(
   () => import("./components/dashboards/InsightsDashboard")
 );
-
-import { useTheme } from "next-themes";
 
 // Shadcn UI Components
 import { Button } from "@/components/ui/button";
@@ -160,24 +156,6 @@ const navigationItems = [
   },
 ];
 
-// Theme Toggle Component
-function ThemeToggle() {
-  const { setTheme, theme } = useTheme();
-
-  return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-      className="h-8 w-8"
-    >
-      <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-      <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-      <span className="sr-only">Toggle theme</span>
-    </Button>
-  );
-}
-
 // App Sidebar Component
 function AppSidebar({
   activeView,
@@ -263,7 +241,21 @@ const getTimePresets = (): TimePreset[] => {
     {
       label: "1Y",
       getValue: () => ({
+        start: subMonths(now, 12),
+        end: now,
+      }),
+    },
+    {
+      label: "YTD",
+      getValue: () => ({
         start: startOfYear(now),
+        end: now,
+      }),
+    },
+    {
+      label: "Lifetime",
+      getValue: () => ({
+        start: new Date(2020, 0, 1), // Start from 2020, covers most food delivery history
         end: now,
       }),
     },
@@ -309,18 +301,44 @@ export const TimeDialProvider: React.FC<{ children: React.ReactNode }> = ({
 };
 
 const GlobalTimeDial: React.FC = () => {
-  const { selectedPreset, setSelectedPreset, presets } = useTimeDial();
+  const { selectedPreset, setSelectedPreset, presets, range } = useTimeDial();
+
+  const formatDateRange = () => {
+    const formatDate = (date: Date) => {
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year:
+          range.start.getFullYear() !== range.end.getFullYear()
+            ? "numeric"
+            : undefined,
+      });
+    };
+
+    return `${formatDate(range.start)} - ${formatDate(range.end)}`;
+  };
 
   return (
-    <div className="flex items-center gap-2 px-4 py-2 bg-muted/50">
-      <Clock className="h-4 w-4 text-muted-foreground" />
-      <span className="text-sm text-muted-foreground">Time Range:</span>
-      <div className="flex gap-1">
+    <div className="flex items-center justify-between gap-4 px-4 py-3 bg-muted/30 border-b">
+      <div className="flex items-center gap-2">
+        <Clock className="h-4 w-4 text-muted-foreground" />
+        <span className="text-sm font-medium text-muted-foreground">
+          Time Range:
+        </span>
+        <span className="text-sm text-foreground">{formatDateRange()}</span>
+      </div>
+
+      <div className="flex gap-1 bg-muted rounded-lg p-1">
         {presets.map((preset) => (
           <Button
             key={preset.label}
             variant={selectedPreset === preset.label ? "default" : "ghost"}
             size="sm"
+            className={`h-8 px-3 text-xs font-medium transition-all ${
+              selectedPreset === preset.label
+                ? "bg-background shadow-sm"
+                : "hover:bg-background/50"
+            }`}
             onClick={() => setSelectedPreset(preset.label)}
           >
             {preset.label}
@@ -606,7 +624,8 @@ const App: React.FC = () => {
     <ThemeProvider
       attribute="class"
       defaultTheme="dark"
-      enableSystem
+      forcedTheme="dark"
+      enableSystem={false}
       disableTransitionOnChange
     >
       <TimeDialProvider>
@@ -635,7 +654,7 @@ const App: React.FC = () => {
                 )}
               </div>
               <div className="ml-auto flex items-center gap-2 px-4">
-                <ThemeToggle />
+                {/* Theme toggle removed - dark mode only */}
               </div>
             </header>
             {/* Global Time Dial */}

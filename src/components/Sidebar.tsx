@@ -83,7 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <aside className="w-64 bg-dark-800 border-r border-border min-h-screen">
+    <aside className="w-64 bg-background border-r border-border min-h-screen">
       <div className="p-6">
         <div className="mb-8">
           <div className="flex items-center space-x-3 mb-3">

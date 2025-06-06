@@ -16,7 +16,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ hasData, totalOrders, totalSpent, dateRange }) => {
   return (
-    <header className="bg-dark-800 border-b border-border">
+    <header className="bg-background border-b border-border">
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo and Title */}
