@@ -38,57 +38,47 @@
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### 1. Install the Chrome Extension (Recommended)
 
-- Node.js 18+
-- pnpm (recommended) or npm
+Spenddy offers a companion <strong>Chrome extension</strong> that grabs your Swiggy order history in a single click and stores it securely in your browser.
 
-### Installation
+1. Install the "Spenddy – Swiggy Export" extension from the Chrome Web Store (link coming soon).
+2. Click the extension icon and follow the on-screen instructions – it will automatically visit your Swiggy account and collect your orders.
+3. Open <strong>Spenddy</strong> – the data loads instantly with no manual upload!
 
-1. **Clone and install**
+---
 
-   ```bash
-   git clone <your-repo-url>
-   cd swig
-   pnpm install
-   ```
+### 2. Manual Upload (Alternative)
 
-2. **Start development server**
+If you prefer not to use the extension you can still upload the data yourself:
 
-   ```bash
-   pnpm dev
-   ```
-
-3. **Open your browser**
-   Navigate to `http://localhost:3000`
-
-### 📦 Production Build
-
-```bash
-pnpm build
-```
+1. Request your data export from Swiggy.
+2. Extract the ZIP and locate <code>allOrders.json</code>.
+3. Drag &amp; drop the file into Spenddy.
 
 ## 📱 How to Use
 
-### Step 1: Get Your Swiggy Data
+### Option A – Zero-Click via Chrome Extension
 
-1. Login to [Swiggy.com](https://swiggy.com)
-2. Go to **Account** → **Privacy** → **Download your data**
-3. Request data export and download the ZIP file when ready
+1. Install the "Spenddy – Swiggy Export" Chrome extension.
+2. Follow the extension's prompts – it will visit your Swiggy order history and save everything locally.
+3. Open Spenddy (this web app). Your data will be detected automatically and the dashboards will load.
 
-### Step 2: Upload to Spenddy
+### Option B – Manual Upload
 
-1. Extract the downloaded ZIP file
-2. Find the `allOrders.json` file
-3. Drag and drop it into Spenddy or use the upload button
+1. Login to Swiggy → Account → Privacy → Download Your Data.
+2. Request the data export and download the ZIP when ready.
+3. Extract the ZIP and find <code>allOrders.json</code>.
+4. Upload the file in Spenddy.
 
-### Step 3: Explore Your Analytics
+Then…
+
+### Explore Your Analytics
 
 - **📊 Overview**: Total orders, spending, and key statistics
 - **💳 Spending**: Detailed spending patterns and trends
 - **🏪 Restaurants**: Your favorite places and cuisine preferences  
 - **🗺️ Locations**: Interactive map with order locations and heatmaps
-- **📅 Activity**: Year-long order activity heatmap
 
 ## 🏗️ Tech Stack
 
@@ -209,3 +199,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   <p><strong>Made with ❤️ for food lovers everywhere</strong></p>
   <p><em>Spenddy - Your personal food ordering analytics companion</em></p>
 </div>
+
+## 🔏 Privacy & License
+
+- Spenddy is <strong>100% client-side</strong>; no data ever leaves your browser.
+- We do <strong>not</strong> collect or store any personal information.
+- Read our full <a href="/source/privacy-policy">Privacy&nbsp;Policy</a>.
+- The project is open-source under the <a href="/LICENSE">MIT License</a> – contributions welcome!

@@ -95,6 +95,14 @@ const FileUpload: React.FC<FileUploadProps> = ({
             Transform your Swiggy order history into actionable insights and
             explore your food ordering locations
           </p>
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+            Prefer zero-click setup? Install our{" "}
+            <span className="font-semibold text-orange-500">
+              Spenddy Chrome extension
+            </span>
+            , follow its on-screen instructions, and your orders will appear
+            here automatically!
+          </p>
         </div>
 
         <div className="flex flex-wrap justify-center gap-3">
@@ -365,7 +373,15 @@ const FileUpload: React.FC<FileUploadProps> = ({
                 <p className="text-sm text-muted-foreground">
                   All data processing happens locally in your browser. We don't
                   store, transmit, or have access to your personal information.
-                  Your Swiggy data never leaves your device.
+                  Your Swiggy data never leaves your device.{" "}
+                  <a
+                    href="/source/privacy-policy"
+                    className="text-orange-500 underline hover:text-orange-600"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Privacy Policy
+                  </a>
                 </p>
               </div>
             </div>
