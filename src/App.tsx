@@ -89,6 +89,7 @@ const CACHE_KEYS = {
   PROCESSED_DATA: "swiggy_processed_data",
   ANALYTICS_DATA: "swiggy_analytics_data",
   FILE_INFO: "swiggy_file_info",
+  LATEST_ORDER_DATE: "swiggy_latest_order_date",
 };
 
 interface FileInfo {
@@ -96,6 +97,8 @@ interface FileInfo {
   size: number;
   uploadDate: string;
   orderCount: number;
+  source?: "plugin" | "upload";
+  latestOrderDate?: string;
 }
 
 interface AppState {
@@ -414,6 +417,62 @@ const App: React.FC = () => {
 
           console.log("Loaded cached data successfully");
         }
+        // NEW: If only raw data exists (e.g. provided by the Chrome extension), re-process it automatically
+        else if (cachedRawData && !cachedProcessedData) {
+          try {
+            const rawOrders: SwiggyOrder[] = JSON.parse(cachedRawData);
+            if (Array.isArray(rawOrders) && rawOrders.length > 0) {
+              const processedData = processOrderData(rawOrders);
+              const analyticsData = generateAnalyticsData(processedData);
+              const latestOrderDateISO =
+                analyticsData.dateRange.end.toISOString();
+
+              const fileInfo: FileInfo = {
+                name: "Plugin Data",
+                size: cachedRawData.length,
+                uploadDate: new Date().toISOString(),
+                orderCount: rawOrders.length,
+                source: "plugin",
+                latestOrderDate: latestOrderDateISO,
+              };
+
+              // Cache the newly generated data so subsequent reloads are fast
+              localStorage.setItem(
+                CACHE_KEYS.PROCESSED_DATA,
+                JSON.stringify(processedData)
+              );
+              localStorage.setItem(
+                CACHE_KEYS.ANALYTICS_DATA,
+                JSON.stringify(analyticsData)
+              );
+              localStorage.setItem(
+                CACHE_KEYS.FILE_INFO,
+                JSON.stringify(fileInfo)
+              );
+              localStorage.setItem(
+                CACHE_KEYS.LATEST_ORDER_DATE,
+                latestOrderDateISO
+              );
+
+              setState((prev) => ({
+                ...prev,
+                rawData: rawOrders,
+                processedData,
+                analyticsData,
+                filteredData: processedData,
+                fileInfo,
+                activeView: "overview",
+              }));
+            }
+          } catch (err) {
+            console.error(
+              "Failed to process cached raw data from extension",
+              err
+            );
+            // If parsing fails, clear invalid raw data so user can upload again
+            localStorage.removeItem(CACHE_KEYS.RAW_DATA);
+          }
+        }
       } catch (error) {
         console.error("Error loading cached data:", error);
         // Clear corrupted cache
@@ -447,6 +506,13 @@ const App: React.FC = () => {
           localStorage.setItem(
             CACHE_KEYS.FILE_INFO,
             JSON.stringify(state.fileInfo)
+          );
+        }
+        // NEW: persist latest order date whenever analytics data is cached
+        if (state.analyticsData?.dateRange?.end) {
+          localStorage.setItem(
+            CACHE_KEYS.LATEST_ORDER_DATE,
+            state.analyticsData.dateRange.end.toISOString()
           );
         }
         console.log("Data cached successfully");
@@ -510,6 +576,8 @@ const App: React.FC = () => {
         size: file.size,
         uploadDate: new Date().toISOString(),
         orderCount: orders.length,
+        source: "upload",
+        latestOrderDate: analyticsData.dateRange.end.toISOString(),
       };
 
       setState((prev) => ({

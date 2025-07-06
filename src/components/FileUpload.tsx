@@ -15,6 +15,8 @@ interface FileInfo {
   size: number;
   uploadDate: string;
   orderCount: number;
+  source?: "plugin" | "upload";
+  latestOrderDate?: string;
 }
 
 interface FileUploadProps {
@@ -141,6 +143,15 @@ const FileUpload: React.FC<FileUploadProps> = ({
                         Uploaded{" "}
                         {new Date(fileInfo.uploadDate).toLocaleDateString()}
                       </span>
+                      {fileInfo.source === "plugin" &&
+                        fileInfo.latestOrderDate && (
+                          <div className="mt-1 text-sm text-muted-foreground">
+                            Source: Plugin • Latest Order:{" "}
+                            {new Date(
+                              fileInfo.latestOrderDate
+                            ).toLocaleDateString()}
+                          </div>
+                        )}
                     </div>
                   </div>
                 </div>
