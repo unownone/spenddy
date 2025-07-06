@@ -119,6 +119,13 @@ pnpm build
   <img src="./assets/demo.gif" alt="Spenddy Demo" width="100%" />
 </div>
 
+## 🎥 Demo Video
+
+<div align="center">
+  <iframe width="720" height="405" src="https://www.youtube.com/embed/9MSGW4WkbBc" title="Spenddy for Swiggy | Spenddy | Know your spends" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+  <p><em>If the video doesn't load, <a href="https://www.youtube.com/watch?v=9MSGW4WkbBc" target="_blank">watch it on YouTube</a>.</em></p>
+</div>
+
 ## 📊 Analytics Features
 
 ### Spending Analysis

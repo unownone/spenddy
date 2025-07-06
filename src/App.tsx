@@ -744,8 +744,9 @@ const App: React.FC = () => {
               </AnimatePresence>
             </div>
           </main>
-          <Footer />
         </SidebarProvider>
+        {/* Global footer */}
+        <Footer />
       </TimeDialProvider>
     </ThemeProvider>
   );
