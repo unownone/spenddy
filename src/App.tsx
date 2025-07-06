@@ -82,6 +82,7 @@ import "./index.css";
 
 // Components
 import FileUpload from "./components/FileUpload";
+import Footer from "./components/Footer";
 
 // Add cache key constants
 const CACHE_KEYS = {
@@ -743,6 +744,7 @@ const App: React.FC = () => {
               </AnimatePresence>
             </div>
           </main>
+          <Footer />
         </SidebarProvider>
       </TimeDialProvider>
     </ThemeProvider>

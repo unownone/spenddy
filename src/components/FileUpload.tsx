@@ -97,11 +97,16 @@ const FileUpload: React.FC<FileUploadProps> = ({
           </p>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
             Prefer zero-click setup? Install our{" "}
-            <span className="font-semibold text-orange-500">
+            <a
+              href="https://github.com/unownone/spenddy-link"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-orange-500 underline hover:text-orange-600"
+            >
               Spenddy Chrome extension
-            </span>
-            , follow its on-screen instructions, and your orders will appear
-            here automatically!
+            </a>{" "}
+            (Web&nbsp;Store coming soon), follow its on-screen instructions, and
+            your orders will appear here automatically!
           </p>
         </div>
 
@@ -385,6 +390,35 @@ const FileUpload: React.FC<FileUploadProps> = ({
                 </p>
               </div>
             </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* GitHub Star CTA */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.7 }}
+        className="max-w-2xl mx-auto"
+      >
+        <Card className="border-blue-500/20 bg-blue-500/5 text-center">
+          <CardContent className="p-6 space-y-4">
+            <h3 className="text-xl font-semibold">Love Spenddy? ⭐️</h3>
+            <p className="text-muted-foreground">
+              Help others discover this project by starring it on GitHub!
+            </p>
+            <Button
+              asChild
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              <a
+                href="https://github.com/unownone/spenddy"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Star on GitHub
+              </a>
+            </Button>
           </CardContent>
         </Card>
       </motion.div>
