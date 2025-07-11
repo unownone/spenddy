@@ -98,15 +98,15 @@ const FileUpload: React.FC<FileUploadProps> = ({
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
             Prefer zero-click setup? Install our{" "}
             <a
-              href="https://github.com/unownone/spenddy-link"
+              href="https://chromewebstore.google.com/detail/mibpmhoncjmniigifepbckapmoflkglo?utm_source=item-share-cb"
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold text-orange-500 underline hover:text-orange-600"
             >
               Spenddy Chrome extension
             </a>{" "}
-            (Web&nbsp;Store coming soon), follow its on-screen instructions, and
-            your orders will appear here automatically!
+            , follow its on-screen instructions, and your orders will appear
+            here automatically!
           </p>
         </div>
 
