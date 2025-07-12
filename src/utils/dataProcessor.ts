@@ -1,4 +1,5 @@
 import { SwiggyOrder, ProcessedOrder, AnalyticsData } from '../types/SwiggyData';
+import { DataSource, OrderRecord, AnalyticsDataset } from '../types/CommonData';
 import { format, parseISO, getYear, getMonth, getHours } from 'date-fns';
 
 /**
@@ -258,4 +259,77 @@ export const formatDuration = (seconds: number): string => {
     return `${hours}h ${minutes}m`;
   }
   return `${minutes}m`;
+}; 
+
+/**
+ * Convert Spenddy's existing `ProcessedOrder` (Swiggy-specific) into the new cross-source
+ * `OrderRecord` schema so future dashboards can rely on a single data shape.
+ */
+export const toCommonOrderRecord = (
+  orders: ProcessedOrder[],
+  source: DataSource = 'swiggy'
+): OrderRecord[] => {
+  return orders.map((order) => ({
+    // Identification
+    orderId: order.orderId,
+    source,
+
+    // Monetary
+    orderTime: order.orderTime,
+    orderTotal: order.orderTotalWithTip,
+    netTotal: order.netTotal,
+    totalFees: order.totalFees,
+    tipAmount: order.tipAmount,
+
+    // Restaurant & payment
+    paymentMethod: order.paymentMethod,
+    restaurantName: order.restaurantName,
+    restaurantCuisine: order.restaurantCuisine,
+    restaurantCityName: order.restaurantCityName,
+    restaurantLocality: order.restaurantLocality,
+
+    // Coordinates
+    restaurantLat: order.restaurantLat,
+    restaurantLng: order.restaurantLng,
+    deliveryLat: order.deliveryLat,
+    deliveryLng: order.deliveryLng,
+
+    // Temporal breakdown
+    year: order.year,
+    month: order.month,
+    monthYear: order.monthYear,
+    dayOfWeek: order.dayOfWeek,
+    hour: order.hour,
+
+    // Retain any additional fields that might have been calculated downstream
+    ...order,
+  }));
+}; 
+
+export const generateAnalyticsDataset = (orders: OrderRecord[]): AnalyticsDataset => {
+  const totalOrders = orders.length;
+  const totalSpent = orders.reduce((sum, o) => sum + o.orderTotal, 0);
+  const averageOrderValue = totalOrders ? totalSpent / totalOrders : 0;
+  const totalTips = orders.reduce((sum, o) => sum + (o.tipAmount ?? 0), 0);
+  const totalFees = orders.reduce((sum, o) => sum + (o.totalFees ?? 0), 0);
+  const uniqueRestaurants = new Set(orders.map((o) => o.restaurantName)).size;
+  const uniqueAreas = new Set(orders.map((o) => o.restaurantLocality)).size;
+
+  const dates = orders.map((o) => o.orderTime);
+  const dateRange = {
+    start: new Date(Math.min(...dates.map((d) => d.getTime()))),
+    end: new Date(Math.max(...dates.map((d) => d.getTime()))),
+  };
+
+  return {
+    orders,
+    totalOrders,
+    totalSpent,
+    averageOrderValue,
+    totalTips,
+    totalFees,
+    uniqueRestaurants,
+    uniqueAreas,
+    dateRange,
+  };
 }; 
