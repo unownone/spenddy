@@ -40,6 +40,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "pages:dev": "wrangler pages dev --proxy 3000 -- pnpm dev",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "deploy": "wrangler deploy",
