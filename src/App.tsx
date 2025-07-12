@@ -264,6 +264,13 @@ const getTimePresets = (): TimePreset[] => {
         end: now,
       }),
     },
+    {
+      label: "Custom",
+      getValue: () => ({
+        start: subMonths(now, 1),
+        end: now,
+      }),
+    },
   ];
 };
 
@@ -272,6 +279,7 @@ interface TimeDialContextType {
   setSelectedPreset: (preset: string) => void;
   presets: TimePreset[];
   range: { start: Date; end: Date };
+  setCustomRange: (start: Date, end: Date) => void;
 }
 
 const TimeDialContext = createContext<TimeDialContextType | undefined>(
@@ -288,17 +296,35 @@ export const useTimeDial = () => {
 export const TimeDialProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [selectedPreset, setSelectedPreset] = useState("3M");
+  const [selectedPreset, setSelectedPreset] = useState<string>("3M");
+  const [customRange, setCustomRangeState] = useState<{
+    start: Date;
+    end: Date;
+  } | null>(null);
   const presets = getTimePresets();
 
   const range = useMemo(() => {
+    if (selectedPreset === "Custom" && customRange) {
+      return customRange;
+    }
     const preset = presets.find((p) => p.label === selectedPreset);
     return preset ? preset.getValue() : presets[1].getValue(); // default to 3M
-  }, [selectedPreset, presets]);
+  }, [selectedPreset, presets, customRange]);
+
+  const setCustomRange = (start: Date, end: Date) => {
+    setCustomRangeState({ start, end });
+    setSelectedPreset("Custom");
+  };
 
   return (
     <TimeDialContext.Provider
-      value={{ selectedPreset, setSelectedPreset, presets, range }}
+      value={{
+        selectedPreset,
+        setSelectedPreset,
+        presets,
+        range,
+        setCustomRange,
+      }}
     >
       {children}
     </TimeDialContext.Provider>
@@ -306,7 +332,23 @@ export const TimeDialProvider: React.FC<{ children: React.ReactNode }> = ({
 };
 
 const GlobalTimeDial: React.FC = () => {
-  const { selectedPreset, setSelectedPreset, presets, range } = useTimeDial();
+  const { selectedPreset, setSelectedPreset, presets, range, setCustomRange } =
+    useTimeDial();
+
+  const [startInput, setStartInput] = useState<string>(() =>
+    range.start.toISOString().slice(0, 10)
+  );
+  const [endInput, setEndInput] = useState<string>(() =>
+    range.end.toISOString().slice(0, 10)
+  );
+
+  useEffect(() => {
+    // sync inputs when preset changes
+    if (selectedPreset !== "Custom") {
+      setStartInput(range.start.toISOString().slice(0, 10));
+      setEndInput(range.end.toISOString().slice(0, 10));
+    }
+  }, [selectedPreset, range]);
 
   const formatDateRange = () => {
     const formatDate = (date: Date) => {
@@ -333,7 +375,7 @@ const GlobalTimeDial: React.FC = () => {
         <span className="text-sm text-foreground">{formatDateRange()}</span>
       </div>
 
-      <div className="flex gap-1 bg-muted rounded-lg p-1">
+      <div className="flex flex-wrap items-center gap-1 bg-muted rounded-lg p-1">
         {presets.map((preset) => (
           <Button
             key={preset.label}
@@ -349,6 +391,40 @@ const GlobalTimeDial: React.FC = () => {
             {preset.label}
           </Button>
         ))}
+
+        {selectedPreset === "Custom" && (
+          <div className="flex items-center gap-2 ml-2">
+            <input
+              type="date"
+              aria-label="Start date"
+              value={startInput}
+              onChange={(e) => setStartInput(e.target.value)}
+              className="h-8 rounded-md border bg-background px-2 text-xs"
+            />
+            <span className="text-xs text-muted-foreground">to</span>
+            <input
+              type="date"
+              aria-label="End date"
+              value={endInput}
+              onChange={(e) => setEndInput(e.target.value)}
+              className="h-8 rounded-md border bg-background px-2 text-xs"
+            />
+            <Button
+              size="sm"
+              variant="secondary"
+              className="px-2"
+              onClick={() => {
+                const start = new Date(startInput);
+                const end = new Date(endInput);
+                if (start <= end) {
+                  setCustomRange(start, end);
+                }
+              }}
+            >
+              Apply
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

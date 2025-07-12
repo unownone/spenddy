@@ -215,3 +215,35 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - We do <strong>not</strong> collect or store any personal information.
 - Read our full <a href="/source/privacy-policy">Privacy&nbsp;Policy</a>.
 - The project is open-source under the <a href="/LICENSE">MIT License</a> – contributions welcome!
+
+## 🛠 Architecture (v2 – Multi-Source)
+
+Spenddy now supports **multiple data sources** via a pluggable folder structure:
+
+```
+src/
+└── sources/
+    ├── BaseSource.ts          # interface + types
+    ├── AbstractSource.ts      # default implementation helpers
+    ├── index.ts               # registry of all sources
+    └── swiggy/                # first concrete source
+        ├── transformer.ts     # raw → OrderRecord[]
+        └── index.ts           # SwiggySource extends AbstractSource
+```
+
+Routing follows the same pattern:
+
+```
+/                 → Landing page (lists sources)
+/:source          → Source layout (Import tab + dashboards)
+/:source/overview → Overview dashboard for that source
+```
+
+Add a new provider under `SourceDataContext` and you’re done!
+
+### Supported sources
+
+| ID | Import method | Status |
+|----|---------------|--------|
+| swiggy | Browser extension (Spenddy-Link) | ✅ |
+| *more soon* | | ⏳ |

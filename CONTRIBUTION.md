@@ -219,3 +219,11 @@ If your change alters public behaviour (new tab, settings, env vars):
 • Ping maintainers via Slack / Discord if urgent.
 
 Thank you for making Spenddy better! 💜 
+
+## 🆕 Adding a New Source (Quick Recap)
+
+1. `mkdir -p src/sources/<yourSource>`
+2. Create a `transformer.ts` that converts the platform’s export to `OrderRecord[]`.
+3. Extend `AbstractSource` in `index.ts` and register it in `src/sources/index.ts`.
+4. The landing page and routing will automatically pick it up.
+5. If your source needs custom dashboards, place them under the same folder and export them; otherwise the generic ones will be used.
