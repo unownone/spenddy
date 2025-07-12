@@ -246,4 +246,5 @@ Add a new provider under `SourceDataContext` and you’re done!
 | ID | Import method | Status |
 |----|---------------|--------|
 | swiggy | Browser extension (Spenddy-Link) | ✅ |
+| zomato | Browser extension (Spenddy-Link) | ⏳ |
 | *more soon* | | ⏳ |
