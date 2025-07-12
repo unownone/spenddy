@@ -1,0 +1,7 @@
+# wrangler.toml
+name = "spenddy"              # any unique name
+compatibility_date = "2025-07-12"
+
+# We are *not* shipping a Worker script, just static files
+[site]
+bucket = "./dist"             # path that vite just produced
