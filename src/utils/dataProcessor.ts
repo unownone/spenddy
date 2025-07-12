@@ -185,17 +185,15 @@ export const generateAnalyticsData = (orders: ProcessedOrder[]): AnalyticsData =
 /**
  * Filter orders by date range
  */
-export const filterOrdersByDateRange = (orders: ProcessedOrder[], start: Date, end: Date): ProcessedOrder[] => {
-  return orders.filter(order => 
-    order.orderTime >= start && order.orderTime <= end
-  );
+export const filterOrdersByDateRange = <T extends { orderTime: Date }>(orders: T[], start: Date, end: Date): T[] => {
+  return orders.filter(order => order.orderTime >= start && order.orderTime <= end);
 };
 
 /**
  * Get monthly spending data
  */
-export const getMonthlySpending = (orders: ProcessedOrder[]) => {
-  const monthlyMap = new Map<string, ProcessedOrder[]>();
+export const getMonthlySpending = <T extends { monthYear: string; orderTotal: number; totalFees: number; tipAmount: number }>(orders: T[]) => {
+  const monthlyMap = new Map<string, T[]>();
   
   orders.forEach(order => {
     const key = order.monthYear;
@@ -300,6 +298,30 @@ export const toCommonOrderRecord = (
     monthYear: order.monthYear,
     dayOfWeek: order.dayOfWeek,
     hour: order.hour,
+
+    // Address & delivery
+    deliveryArea: order.deliveryArea,
+    deliveryCity: order.deliveryCity,
+    deliveryAnnotation: order.deliveryAnnotation,
+    deliveryTime: order.deliveryTime,
+    distance: order.distance,
+
+    // Fee breakdown
+    deliveryCharges: order.deliveryCharges,
+    packingCharges: order.packingCharges,
+    convenienceFee: order.convenienceFee,
+    gst: order.gst,
+    serviceCharges: order.serviceCharges,
+    serviceTax: order.serviceTax,
+    vat: order.vat,
+
+    // Discounts
+    orderDiscount: order.orderDiscount,
+    couponDiscount: order.couponDiscount,
+    couponApplied: order.couponApplied,
+
+    // Items
+    itemsCount: order.itemsCount,
 
     // Retain any additional fields that might have been calculated downstream
     ...order,

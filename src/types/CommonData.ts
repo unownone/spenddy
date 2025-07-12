@@ -26,6 +26,23 @@ export interface OrderRecord {
   /** Tip amount, if any */
   tipAmount: number;
 
+  // Discounts
+  orderDiscount?: number;
+  couponDiscount?: number;
+  couponApplied?: string;
+
+  // ---- Fee breakdown (optional, depending on source) ----
+  deliveryCharges?: number;
+  packingCharges?: number;
+  convenienceFee?: number;
+  gst?: number;
+  serviceCharges?: number;
+  serviceTax?: number;
+  vat?: number;
+
+  // Item-level details
+  itemsCount?: number;
+
   /** Primary payment method label */
   paymentMethod: string;
 
@@ -44,6 +61,12 @@ export interface OrderRecord {
   restaurantLng?: number;
   deliveryLat?: number;
   deliveryLng?: number;
+
+  deliveryArea?: string;
+  deliveryCity?: string;
+  deliveryAnnotation?: string;
+  deliveryTime?: number;
+  distance?: number;
 
   /** Calculated classification helpers */
   year: number;

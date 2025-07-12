@@ -31,6 +31,11 @@ import {
   generateAnalyticsData,
   filterOrdersByDateRange,
 } from "./utils/dataProcessor";
+import {
+  toCommonOrderRecord,
+  generateAnalyticsDataset,
+} from "./utils/dataProcessor";
+import { OrderRecord, AnalyticsDataset } from "./types/CommonData";
 import { subMonths, startOfYear, startOfMonth } from "date-fns";
 
 // Lazy load dashboard components for code splitting
@@ -81,7 +86,7 @@ import {
 import "./index.css";
 
 // Components
-import FileUpload from "./components/FileUpload";
+// Upload view removed – data now comes exclusively from the browser extension
 import Footer from "./components/Footer";
 
 // Add cache key constants
@@ -107,6 +112,8 @@ interface AppState {
   processedData: ProcessedOrder[] | null;
   analyticsData: AnalyticsData | null;
   filteredData: ProcessedOrder[] | null;
+  commonOrders: OrderRecord[] | null;
+  commonAnalytics: AnalyticsDataset | null;
   isLoading: boolean;
   error: string | null;
   activeView: string;
@@ -121,12 +128,6 @@ const initialTimeFilter: TimeFilter = {
 };
 
 const navigationItems = [
-  {
-    id: "upload",
-    icon: Upload,
-    label: "Upload Data",
-    description: "Import your Swiggy data",
-  },
   {
     id: "overview",
     icon: BarChart3,
@@ -168,7 +169,7 @@ function AppSidebar({
 }: {
   activeView: string;
   setActiveView: (view: string) => void;
-  processedData: ProcessedOrder[] | null;
+  processedData: OrderRecord[] | null;
 }) {
   return (
     <Sidebar collapsible="icon">
@@ -359,9 +360,11 @@ const App: React.FC = () => {
     processedData: null,
     analyticsData: null,
     filteredData: null,
+    commonOrders: null,
+    commonAnalytics: null,
     isLoading: false,
     error: null,
-    activeView: "upload",
+    activeView: "overview",
     timeFilter: initialTimeFilter,
     fileInfo: null,
   });
@@ -406,12 +409,17 @@ const App: React.FC = () => {
           );
           const fileInfo: FileInfo = JSON.parse(cachedFileInfo);
 
+          const orderRecords = toCommonOrderRecord(processedData);
+          const commonAnalytics = generateAnalyticsDataset(orderRecords);
+
           setState((prev) => ({
             ...prev,
             rawData,
             processedData,
             analyticsData,
             filteredData: processedData,
+            commonOrders: orderRecords,
+            commonAnalytics,
             fileInfo,
             activeView: "overview", // Switch to overview if data exists
           }));
@@ -425,6 +433,8 @@ const App: React.FC = () => {
             if (Array.isArray(rawOrders) && rawOrders.length > 0) {
               const processedData = processOrderData(rawOrders);
               const analyticsData = generateAnalyticsData(processedData);
+              const orderRecords = toCommonOrderRecord(processedData);
+              const commonAnalytics = generateAnalyticsDataset(orderRecords);
               const latestOrderDateISO =
                 analyticsData.dateRange.end.toISOString();
 
@@ -461,6 +471,8 @@ const App: React.FC = () => {
                 processedData,
                 analyticsData,
                 filteredData: processedData,
+                commonOrders: orderRecords,
+                commonAnalytics,
                 fileInfo,
                 activeView: "overview",
               }));
@@ -571,6 +583,8 @@ const App: React.FC = () => {
 
       const processedData = processOrderData(orders);
       const analyticsData = generateAnalyticsData(processedData);
+      const orderRecords = toCommonOrderRecord(processedData);
+      const commonAnalytics = generateAnalyticsDataset(orderRecords);
 
       const fileInfo: FileInfo = {
         name: file.name,
@@ -586,6 +600,8 @@ const App: React.FC = () => {
         rawData: orders,
         processedData,
         analyticsData,
+        commonOrders: orderRecords,
+        commonAnalytics,
         filteredData: processedData,
         isLoading: false,
         error: null,
@@ -613,9 +629,11 @@ const App: React.FC = () => {
       processedData: null,
       analyticsData: null,
       filteredData: null,
+      commonOrders: null,
+      commonAnalytics: null,
       isLoading: false,
       error: null,
-      activeView: "upload",
+      activeView: "overview",
       timeFilter: initialTimeFilter,
       fileInfo: null,
     });
@@ -629,32 +647,23 @@ const App: React.FC = () => {
 
   const renderContent = () => {
     switch (state.activeView) {
-      case "upload":
-        return (
-          <FileUpload
-            onFileUpload={handleFileUpload}
-            isLoading={state.isLoading}
-            error={state.error}
-            fileInfo={state.fileInfo}
-            onClearData={clearCachedData}
-          />
-        );
+      // Upload view removed – data now comes exclusively from the browser extension
       case "overview":
         return (
           <Suspense
             fallback={<div className="p-8 text-center">Loading...</div>}
           >
-            <OverviewDashboard data={state.analyticsData} />
+            <OverviewDashboard data={state.commonAnalytics} />
           </Suspense>
         );
       case "spending":
-        return state.processedData && state.analyticsData ? (
+        return state.commonOrders && state.commonAnalytics ? (
           <Suspense
             fallback={<div className="p-8 text-center">Loading...</div>}
           >
             <SpendingDashboard
-              data={state.processedData}
-              analytics={state.analyticsData}
+              data={state.commonOrders}
+              analytics={state.commonAnalytics}
             />
           </Suspense>
         ) : (
@@ -665,7 +674,7 @@ const App: React.FC = () => {
           <Suspense
             fallback={<div className="p-8 text-center">Loading...</div>}
           >
-            <RestaurantsDashboard data={state.processedData || []} />
+            <RestaurantsDashboard data={state.commonOrders || []} />
           </Suspense>
         );
       case "locations":
@@ -673,7 +682,7 @@ const App: React.FC = () => {
           <Suspense
             fallback={<div className="p-8 text-center">Loading...</div>}
           >
-            <LocationsDashboard data={state.analyticsData} />
+            <LocationsDashboard data={state.commonAnalytics} />
           </Suspense>
         );
       case "insights":
@@ -681,7 +690,7 @@ const App: React.FC = () => {
           <Suspense
             fallback={<div className="p-8 text-center">Loading...</div>}
           >
-            <InsightsDashboard data={state.analyticsData} />
+            <InsightsDashboard data={state.commonAnalytics} />
           </Suspense>
         );
       default:
@@ -702,7 +711,7 @@ const App: React.FC = () => {
           <AppSidebar
             activeView={state.activeView}
             setActiveView={setActiveView}
-            processedData={state.processedData}
+            processedData={state.commonOrders}
           />
           <main className="flex flex-1 flex-col overflow-hidden">
             {/* Header */}
@@ -710,13 +719,16 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 px-4">
                 <SidebarTrigger className="-ml-1" />
                 <Separator orientation="vertical" className="mr-2 h-4" />
-                {state.processedData && (
+                {state.commonOrders && (
                   <div className="flex items-center gap-2">
                     <Badge variant="secondary" className="hidden sm:flex">
-                      {state.processedData.length.toLocaleString()} orders
+                      {state.commonOrders.length.toLocaleString()} orders
                     </Badge>
                     <Badge variant="outline" className="hidden md:flex">
-                      ₹{state.analyticsData?.totalSpent.toLocaleString("en-IN")}{" "}
+                      ₹
+                      {state.commonAnalytics?.totalSpent.toLocaleString(
+                        "en-IN"
+                      )}{" "}
                       total
                     </Badge>
                   </div>

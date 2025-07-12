@@ -38,17 +38,15 @@
 
 ## 🚀 Quick Start
 
-### 1. Install the Chrome Extension (Recommended)
+### 1. Install the Chrome Extension (Required)
 
 Spenddy offers a companion <strong>Chrome extension</strong> that grabs your Swiggy order history in a single click and stores it securely in your browser.
 
 - Source code & manual install: <a href="https://github.com/unownone/spenddy-link" target="_blank">unownone/spenddy-link</a>
 - Install from Chrome Web&nbsp;Store: <a href="https://chromewebstore.google.com/detail/mibpmhoncjmniigifepbckapmoflkglo?utm_source=item-share-cb" target="_blank">Spenddy&nbsp;Link</a>
 
-1. Install the extension from the Chrome Web&nbsp;Store (<a href="https://chromewebstore.google.com/detail/mibpmhoncjmniigifepbckapmoflkglo?utm_source=item-share-cb" target="_blank">Spenddy&nbsp;Link</a>) or clone the repo from GitHub for manual installation.
-2. Load the unpacked extension via <code>chrome://extensions</code> → Developer mode → <strong>Load unpacked</strong>.
-3. Click the extension icon and follow the on-screen instructions – it will automatically collect your orders.
-4. Open <strong>Spenddy</strong> – the data loads instantly with no manual upload!
+> **Heads-up!** Manual upload has been **removed** in favour of the one-click browser extension.  
+> The UI no longer shows an upload panel – simply install the *Spenddy Link* extension and your data will appear automatically.
 
 ---
 

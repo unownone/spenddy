@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { AnalyticsData, ProcessedOrder } from "../../types/SwiggyData";
+import { AnalyticsDataset } from "../../types/CommonData";
 import { useTimeDial } from "../../App";
 import {
   filterOrdersByDateRange,
@@ -17,7 +17,7 @@ import { Badge } from "../ui/badge";
 import { MapPin, Navigation, Clock, TrendingUp } from "lucide-react";
 
 interface LocationsDashboardProps {
-  data: AnalyticsData | null;
+  data: AnalyticsDataset | null;
 }
 
 interface LocationStats {
