@@ -1,8 +1,8 @@
 import React from 'react';
-import { AnalyticsData } from "../../types/SwiggyData";
+import { AnalyticsDataset } from "../../types/CommonData";
 
 interface InsightsDashboardProps {
-  data: AnalyticsData | null;
+  data: AnalyticsDataset | null;
 }
 
 const InsightsDashboard: React.FC<InsightsDashboardProps> = ({ data }) => {

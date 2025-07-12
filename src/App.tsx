@@ -31,6 +31,11 @@ import {
   generateAnalyticsData,
   filterOrdersByDateRange,
 } from "./utils/dataProcessor";
+import {
+  toCommonOrderRecord,
+  generateAnalyticsDataset,
+} from "./utils/dataProcessor";
+import { OrderRecord, AnalyticsDataset } from "./types/CommonData";
 import { subMonths, startOfYear, startOfMonth } from "date-fns";
 
 // Lazy load dashboard components for code splitting
@@ -81,7 +86,7 @@ import {
 import "./index.css";
 
 // Components
-import FileUpload from "./components/FileUpload";
+// Upload view removed – data now comes exclusively from the browser extension
 import Footer from "./components/Footer";
 
 // Add cache key constants
@@ -107,6 +112,8 @@ interface AppState {
   processedData: ProcessedOrder[] | null;
   analyticsData: AnalyticsData | null;
   filteredData: ProcessedOrder[] | null;
+  commonOrders: OrderRecord[] | null;
+  commonAnalytics: AnalyticsDataset | null;
   isLoading: boolean;
   error: string | null;
   activeView: string;
@@ -121,12 +128,6 @@ const initialTimeFilter: TimeFilter = {
 };
 
 const navigationItems = [
-  {
-    id: "upload",
-    icon: Upload,
-    label: "Upload Data",
-    description: "Import your Swiggy data",
-  },
   {
     id: "overview",
     icon: BarChart3,
@@ -168,7 +169,7 @@ function AppSidebar({
 }: {
   activeView: string;
   setActiveView: (view: string) => void;
-  processedData: ProcessedOrder[] | null;
+  processedData: OrderRecord[] | null;
 }) {
   return (
     <Sidebar collapsible="icon">
@@ -243,7 +244,7 @@ const getTimePresets = (): TimePreset[] => {
       }),
     },
     {
-      label: "1Y",
+      label: "12M",
       getValue: () => ({
         start: subMonths(now, 12),
         end: now,
@@ -257,9 +258,16 @@ const getTimePresets = (): TimePreset[] => {
       }),
     },
     {
-      label: "Lifetime",
+      label: "All",
       getValue: () => ({
-        start: new Date(2020, 0, 1), // Start from 2020, covers most food delivery history
+        start: new Date(0),
+        end: now,
+      }),
+    },
+    {
+      label: "Custom",
+      getValue: () => ({
+        start: subMonths(now, 1),
         end: now,
       }),
     },
@@ -271,6 +279,7 @@ interface TimeDialContextType {
   setSelectedPreset: (preset: string) => void;
   presets: TimePreset[];
   range: { start: Date; end: Date };
+  setCustomRange: (start: Date, end: Date) => void;
 }
 
 const TimeDialContext = createContext<TimeDialContextType | undefined>(
@@ -287,25 +296,59 @@ export const useTimeDial = () => {
 export const TimeDialProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [selectedPreset, setSelectedPreset] = useState("3M");
+  const [selectedPreset, setSelectedPreset] = useState<string>("3M");
+  const [customRange, setCustomRangeState] = useState<{
+    start: Date;
+    end: Date;
+  } | null>(null);
   const presets = getTimePresets();
 
   const range = useMemo(() => {
+    if (selectedPreset === "Custom" && customRange) {
+      return customRange;
+    }
     const preset = presets.find((p) => p.label === selectedPreset);
     return preset ? preset.getValue() : presets[1].getValue(); // default to 3M
-  }, [selectedPreset, presets]);
+  }, [selectedPreset, presets, customRange]);
+
+  const setCustomRange = (start: Date, end: Date) => {
+    setCustomRangeState({ start, end });
+    setSelectedPreset("Custom");
+  };
 
   return (
     <TimeDialContext.Provider
-      value={{ selectedPreset, setSelectedPreset, presets, range }}
+      value={{
+        selectedPreset,
+        setSelectedPreset,
+        presets,
+        range,
+        setCustomRange,
+      }}
     >
       {children}
     </TimeDialContext.Provider>
   );
 };
 
-const GlobalTimeDial: React.FC = () => {
-  const { selectedPreset, setSelectedPreset, presets, range } = useTimeDial();
+export const GlobalTimeDial: React.FC = () => {
+  const { selectedPreset, setSelectedPreset, presets, range, setCustomRange } =
+    useTimeDial();
+
+  const [startInput, setStartInput] = useState<string>(() =>
+    range.start.toISOString().slice(0, 10)
+  );
+  const [endInput, setEndInput] = useState<string>(() =>
+    range.end.toISOString().slice(0, 10)
+  );
+
+  useEffect(() => {
+    // sync inputs when preset changes
+    if (selectedPreset !== "Custom") {
+      setStartInput(range.start.toISOString().slice(0, 10));
+      setEndInput(range.end.toISOString().slice(0, 10));
+    }
+  }, [selectedPreset, range]);
 
   const formatDateRange = () => {
     const formatDate = (date: Date) => {
@@ -332,7 +375,7 @@ const GlobalTimeDial: React.FC = () => {
         <span className="text-sm text-foreground">{formatDateRange()}</span>
       </div>
 
-      <div className="flex gap-1 bg-muted rounded-lg p-1">
+      <div className="flex flex-wrap items-center gap-1 bg-muted rounded-lg p-1">
         {presets.map((preset) => (
           <Button
             key={preset.label}
@@ -348,6 +391,40 @@ const GlobalTimeDial: React.FC = () => {
             {preset.label}
           </Button>
         ))}
+
+        {selectedPreset === "Custom" && (
+          <div className="flex items-center gap-2 ml-2">
+            <input
+              type="date"
+              aria-label="Start date"
+              value={startInput}
+              onChange={(e) => setStartInput(e.target.value)}
+              className="h-8 rounded-md border bg-background px-2 text-xs"
+            />
+            <span className="text-xs text-muted-foreground">to</span>
+            <input
+              type="date"
+              aria-label="End date"
+              value={endInput}
+              onChange={(e) => setEndInput(e.target.value)}
+              className="h-8 rounded-md border bg-background px-2 text-xs"
+            />
+            <Button
+              size="sm"
+              variant="secondary"
+              className="px-2"
+              onClick={() => {
+                const start = new Date(startInput);
+                const end = new Date(endInput);
+                if (start <= end) {
+                  setCustomRange(start, end);
+                }
+              }}
+            >
+              Apply
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -359,9 +436,11 @@ const App: React.FC = () => {
     processedData: null,
     analyticsData: null,
     filteredData: null,
+    commonOrders: null,
+    commonAnalytics: null,
     isLoading: false,
     error: null,
-    activeView: "upload",
+    activeView: "overview",
     timeFilter: initialTimeFilter,
     fileInfo: null,
   });
@@ -406,12 +485,17 @@ const App: React.FC = () => {
           );
           const fileInfo: FileInfo = JSON.parse(cachedFileInfo);
 
+          const orderRecords = toCommonOrderRecord(processedData);
+          const commonAnalytics = generateAnalyticsDataset(orderRecords);
+
           setState((prev) => ({
             ...prev,
             rawData,
             processedData,
             analyticsData,
             filteredData: processedData,
+            commonOrders: orderRecords,
+            commonAnalytics,
             fileInfo,
             activeView: "overview", // Switch to overview if data exists
           }));
@@ -425,6 +509,8 @@ const App: React.FC = () => {
             if (Array.isArray(rawOrders) && rawOrders.length > 0) {
               const processedData = processOrderData(rawOrders);
               const analyticsData = generateAnalyticsData(processedData);
+              const orderRecords = toCommonOrderRecord(processedData);
+              const commonAnalytics = generateAnalyticsDataset(orderRecords);
               const latestOrderDateISO =
                 analyticsData.dateRange.end.toISOString();
 
@@ -461,6 +547,8 @@ const App: React.FC = () => {
                 processedData,
                 analyticsData,
                 filteredData: processedData,
+                commonOrders: orderRecords,
+                commonAnalytics,
                 fileInfo,
                 activeView: "overview",
               }));
@@ -571,6 +659,8 @@ const App: React.FC = () => {
 
       const processedData = processOrderData(orders);
       const analyticsData = generateAnalyticsData(processedData);
+      const orderRecords = toCommonOrderRecord(processedData);
+      const commonAnalytics = generateAnalyticsDataset(orderRecords);
 
       const fileInfo: FileInfo = {
         name: file.name,
@@ -586,6 +676,8 @@ const App: React.FC = () => {
         rawData: orders,
         processedData,
         analyticsData,
+        commonOrders: orderRecords,
+        commonAnalytics,
         filteredData: processedData,
         isLoading: false,
         error: null,
@@ -613,9 +705,11 @@ const App: React.FC = () => {
       processedData: null,
       analyticsData: null,
       filteredData: null,
+      commonOrders: null,
+      commonAnalytics: null,
       isLoading: false,
       error: null,
-      activeView: "upload",
+      activeView: "overview",
       timeFilter: initialTimeFilter,
       fileInfo: null,
     });
@@ -629,32 +723,23 @@ const App: React.FC = () => {
 
   const renderContent = () => {
     switch (state.activeView) {
-      case "upload":
-        return (
-          <FileUpload
-            onFileUpload={handleFileUpload}
-            isLoading={state.isLoading}
-            error={state.error}
-            fileInfo={state.fileInfo}
-            onClearData={clearCachedData}
-          />
-        );
+      // Upload view removed – data now comes exclusively from the browser extension
       case "overview":
         return (
           <Suspense
             fallback={<div className="p-8 text-center">Loading...</div>}
           >
-            <OverviewDashboard data={state.analyticsData} />
+            <OverviewDashboard data={state.commonAnalytics} />
           </Suspense>
         );
       case "spending":
-        return state.processedData && state.analyticsData ? (
+        return state.commonOrders && state.commonAnalytics ? (
           <Suspense
             fallback={<div className="p-8 text-center">Loading...</div>}
           >
             <SpendingDashboard
-              data={state.processedData}
-              analytics={state.analyticsData}
+              data={state.commonOrders}
+              analytics={state.commonAnalytics}
             />
           </Suspense>
         ) : (
@@ -665,7 +750,7 @@ const App: React.FC = () => {
           <Suspense
             fallback={<div className="p-8 text-center">Loading...</div>}
           >
-            <RestaurantsDashboard data={state.processedData || []} />
+            <RestaurantsDashboard data={state.commonOrders || []} />
           </Suspense>
         );
       case "locations":
@@ -673,7 +758,7 @@ const App: React.FC = () => {
           <Suspense
             fallback={<div className="p-8 text-center">Loading...</div>}
           >
-            <LocationsDashboard data={state.analyticsData} />
+            <LocationsDashboard data={state.commonAnalytics} />
           </Suspense>
         );
       case "insights":
@@ -681,7 +766,7 @@ const App: React.FC = () => {
           <Suspense
             fallback={<div className="p-8 text-center">Loading...</div>}
           >
-            <InsightsDashboard data={state.analyticsData} />
+            <InsightsDashboard data={state.commonAnalytics} />
           </Suspense>
         );
       default:
@@ -702,7 +787,7 @@ const App: React.FC = () => {
           <AppSidebar
             activeView={state.activeView}
             setActiveView={setActiveView}
-            processedData={state.processedData}
+            processedData={state.commonOrders}
           />
           <main className="flex flex-1 flex-col overflow-hidden">
             {/* Header */}
@@ -710,13 +795,16 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 px-4">
                 <SidebarTrigger className="-ml-1" />
                 <Separator orientation="vertical" className="mr-2 h-4" />
-                {state.processedData && (
+                {state.commonOrders && (
                   <div className="flex items-center gap-2">
                     <Badge variant="secondary" className="hidden sm:flex">
-                      {state.processedData.length.toLocaleString()} orders
+                      {state.commonOrders.length.toLocaleString()} orders
                     </Badge>
                     <Badge variant="outline" className="hidden md:flex">
-                      ₹{state.analyticsData?.totalSpent.toLocaleString("en-IN")}{" "}
+                      ₹
+                      {state.commonAnalytics?.totalSpent.toLocaleString(
+                        "en-IN"
+                      )}{" "}
                       total
                     </Badge>
                   </div>

@@ -1,4 +1,5 @@
 import { SwiggyOrder, ProcessedOrder, AnalyticsData } from '../types/SwiggyData';
+import { DataSource, OrderRecord, AnalyticsDataset } from '../types/CommonData';
 import { format, parseISO, getYear, getMonth, getHours } from 'date-fns';
 
 /**
@@ -184,17 +185,15 @@ export const generateAnalyticsData = (orders: ProcessedOrder[]): AnalyticsData =
 /**
  * Filter orders by date range
  */
-export const filterOrdersByDateRange = (orders: ProcessedOrder[], start: Date, end: Date): ProcessedOrder[] => {
-  return orders.filter(order => 
-    order.orderTime >= start && order.orderTime <= end
-  );
+export const filterOrdersByDateRange = <T extends { orderTime: Date }>(orders: T[], start: Date, end: Date): T[] => {
+  return orders.filter(order => order.orderTime >= start && order.orderTime <= end);
 };
 
 /**
  * Get monthly spending data
  */
-export const getMonthlySpending = (orders: ProcessedOrder[]) => {
-  const monthlyMap = new Map<string, ProcessedOrder[]>();
+export const getMonthlySpending = <T extends { monthYear: string; orderTotal: number; totalFees: number; tipAmount: number }>(orders: T[]) => {
+  const monthlyMap = new Map<string, T[]>();
   
   orders.forEach(order => {
     const key = order.monthYear;
@@ -258,4 +257,101 @@ export const formatDuration = (seconds: number): string => {
     return `${hours}h ${minutes}m`;
   }
   return `${minutes}m`;
+}; 
+
+/**
+ * Convert Spenddy's existing `ProcessedOrder` (Swiggy-specific) into the new cross-source
+ * `OrderRecord` schema so future dashboards can rely on a single data shape.
+ */
+export const toCommonOrderRecord = (
+  orders: ProcessedOrder[],
+  source: DataSource = 'swiggy'
+): OrderRecord[] => {
+  return orders.map((order) => ({
+    // Identification
+    orderId: order.orderId,
+    source,
+
+    // Monetary
+    orderTime: order.orderTime,
+    orderTotal: order.orderTotalWithTip,
+    netTotal: order.netTotal,
+    totalFees: order.totalFees,
+    tipAmount: order.tipAmount,
+
+    // Restaurant & payment
+    paymentMethod: order.paymentMethod,
+    restaurantName: order.restaurantName,
+    restaurantCuisine: order.restaurantCuisine,
+    restaurantCityName: order.restaurantCityName,
+    restaurantLocality: order.restaurantLocality,
+
+    // Coordinates
+    restaurantLat: order.restaurantLat,
+    restaurantLng: order.restaurantLng,
+    deliveryLat: order.deliveryLat,
+    deliveryLng: order.deliveryLng,
+
+    // Temporal breakdown
+    year: order.year,
+    month: order.month,
+    monthYear: order.monthYear,
+    dayOfWeek: order.dayOfWeek,
+    hour: order.hour,
+
+    // Address & delivery
+    deliveryArea: order.deliveryArea,
+    deliveryCity: order.deliveryCity,
+    deliveryAnnotation: order.deliveryAnnotation,
+    deliveryTime: order.deliveryTime,
+    distance: order.distance,
+
+    // Fee breakdown
+    deliveryCharges: order.deliveryCharges,
+    packingCharges: order.packingCharges,
+    convenienceFee: order.convenienceFee,
+    gst: order.gst,
+    serviceCharges: order.serviceCharges,
+    serviceTax: order.serviceTax,
+    vat: order.vat,
+
+    // Discounts
+    orderDiscount: order.orderDiscount,
+    couponDiscount: order.couponDiscount,
+    couponApplied: order.couponApplied,
+
+    // Items
+    itemsCount: order.itemsCount,
+
+    // Retain any additional fields that might have been calculated downstream
+    ...order,
+  }));
+}; 
+
+export const generateAnalyticsDataset = (orders: OrderRecord[]): AnalyticsDataset => {
+  const totalOrders = orders.length;
+  const totalSpent = orders.reduce((sum, o) => sum + o.orderTotal, 0);
+  const averageOrderValue = totalOrders ? totalSpent / totalOrders : 0;
+  const totalTips = orders.reduce((sum, o) => sum + (o.tipAmount ?? 0), 0);
+  const totalFees = orders.reduce((sum, o) => sum + (o.totalFees ?? 0), 0);
+  const uniqueRestaurants = new Set(orders.map((o) => o.restaurantName)).size;
+  const uniqueAreas = new Set(orders.map((o) => o.restaurantLocality)).size;
+
+  const dates = orders.map((o) => o.orderTime);
+  const dateRange = {
+    start: new Date(Math.min(...dates.map((d) => d.getTime()))),
+    end: new Date(Math.max(...dates.map((d) => d.getTime()))),
+  };
+
+  return {
+    orders,
+    totalOrders,
+    totalSpent,
+    averageOrderValue,
+    totalTips,
+    totalFees,
+    uniqueRestaurants,
+    uniqueAreas,
+    dateRange,
+  };
 }; 

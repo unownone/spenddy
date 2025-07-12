@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { TrendingUp, BarChart3, Store, Award, Upload } from "lucide-react";
-import { AnalyticsData, ProcessedOrder } from "../../types/SwiggyData";
+import { AnalyticsDataset, OrderRecord } from "../../types/CommonData";
 import { filterOrdersByDateRange } from "../../utils/dataProcessor";
 import { useTimeDial } from "../../App";
 import {
@@ -37,11 +37,11 @@ ChartJS.register(
 );
 
 interface OverviewDashboardProps {
-  data: AnalyticsData | null;
+  data: AnalyticsDataset | null;
 }
 
 const OverviewChart: React.FC<{
-  data: ProcessedOrder[];
+  data: OrderRecord[];
 }> = ({ data }) => {
   const chartData = useMemo(() => {
     if (!data || data.length === 0) return null;
@@ -118,9 +118,7 @@ const OverviewChart: React.FC<{
   return <Line data={chartData} options={options} />;
 };
 
-const OrderActivityHeatmap: React.FC<{ data: ProcessedOrder[] }> = ({
-  data,
-}) => {
+const OrderActivityHeatmap: React.FC<{ data: OrderRecord[] }> = ({ data }) => {
   const heatmapData = useMemo(() => {
     if (!data || data.length === 0) return [];
 

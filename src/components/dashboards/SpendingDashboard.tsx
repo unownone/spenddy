@@ -15,7 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { ProcessedOrder, AnalyticsData } from "../../types/SwiggyData";
+import { OrderRecord, AnalyticsDataset } from "../../types/CommonData";
 import {
   formatCurrency,
   getMonthlySpending,
@@ -24,8 +24,8 @@ import {
 import { useTimeDial } from "../../App";
 
 interface SpendingDashboardProps {
-  data: ProcessedOrder[];
-  analytics: AnalyticsData;
+  data: OrderRecord[];
+  analytics: AnalyticsDataset;
 }
 
 interface SpendingCard {
@@ -289,7 +289,7 @@ const SpendingChart: React.FC<{
 
 // Month-specific breakdown component with pie chart
 const MonthBreakdown: React.FC<{
-  data: ProcessedOrder[];
+  data: OrderRecord[];
   selectedMonth: string | null;
 }> = ({ data, selectedMonth }) => {
   // Convert chart month format (e.g., "Dec 24") to monthYear format (e.g., "2024-12")
@@ -340,7 +340,7 @@ const MonthBreakdown: React.FC<{
   };
 
   const monthData = useMemo(() => {
-    let orders: ProcessedOrder[];
+    let orders: OrderRecord[];
     if (!selectedMonth) {
       orders = data;
     } else {

@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { ProcessedOrder } from "../../types/SwiggyData";
+import { OrderRecord } from "../../types/CommonData";
 import { useTimeDial } from "../../App";
 import {
   filterOrdersByDateRange,
@@ -17,7 +17,7 @@ import { Badge } from "../ui/badge";
 import { Store, Trophy, Star, TrendingUp } from "lucide-react";
 
 interface RestaurantsDashboardProps {
-  data: ProcessedOrder[];
+  data: OrderRecord[];
 }
 
 interface RestaurantStats {
