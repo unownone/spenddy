@@ -2,15 +2,16 @@ import React from "react";
 import { Outlet, NavLink, useParams } from "react-router-dom";
 import { useSourceData } from "../../contexts/SourceDataContext";
 import ImportTab from "./ImportTab";
-import { TimeDialProvider } from "../../App";
+import { TimeDialProvider, GlobalTimeDial } from "../../App";
 import { cn } from "../../lib/utils";
 
+// Inspired by shadcn/ui TabsTrigger styling
 const navLinkClasses = (isActive: boolean) =>
   cn(
-    "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium transition-colors",
+    "shrink-0 rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
     isActive
-      ? "bg-background text-foreground shadow"
-      : "text-muted-foreground hover:bg-background/50"
+      ? "bg-primary text-primary-foreground shadow"
+      : "text-muted-foreground hover:text-foreground hover:bg-muted"
   );
 
 const SourceLayout: React.FC = () => {
@@ -23,52 +24,59 @@ const SourceLayout: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen">
-      <header className="border-b p-4 flex items-center gap-4">
-        <NavLink to="/" className="text-sm text-muted-foreground">← Back</NavLink>
+      <header className="sticky top-0 z-20 flex items-center gap-4 px-4 py-3 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
+        <NavLink to="/" className="text-sm text-muted-foreground">
+          ← Back
+        </NavLink>
         <h1 className="text-2xl font-bold">{sourceDef.name}</h1>
       </header>
-      <nav className="border-b p-2 flex flex-wrap gap-2 bg-muted/20">
-        <NavLink
-          to=""
-          end
-          className={({ isActive }) => navLinkClasses(isActive)}
-        >
-          Import
-        </NavLink>
-        {dataset && (
-          <>
-            <NavLink
-              to="overview"
-              className={({ isActive }) => navLinkClasses(isActive)}
-            >
-              Overview
-            </NavLink>
-            <NavLink
-              to="spending"
-              className={({ isActive }) => navLinkClasses(isActive)}
-            >
-              Spending
-            </NavLink>
-            <NavLink
-              to="restaurants"
-              className={({ isActive }) => navLinkClasses(isActive)}
-            >
-              Restaurants
-            </NavLink>
-            <NavLink
-              to="locations"
-              className={({ isActive }) => navLinkClasses(isActive)}
-            >
-              Locations
-            </NavLink>
-          </>
-        )}
+      {/* Horizontally scrollable tab bar */}
+      <nav className="bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-inner">
+        <div className="max-w-screen-lg mx-auto flex overflow-x-auto no-scrollbar gap-1 h-10 items-center px-4">
+          <NavLink
+            to=""
+            end
+            className={({ isActive }) => navLinkClasses(isActive)}
+          >
+            Import
+          </NavLink>
+          {dataset && (
+            <>
+              <NavLink
+                to="overview"
+                className={({ isActive }) => navLinkClasses(isActive)}
+              >
+                Overview
+              </NavLink>
+              <NavLink
+                to="spending"
+                className={({ isActive }) => navLinkClasses(isActive)}
+              >
+                Spending
+              </NavLink>
+              <NavLink
+                to="restaurants"
+                className={({ isActive }) => navLinkClasses(isActive)}
+              >
+                Restaurants
+              </NavLink>
+              <NavLink
+                to="locations"
+                className={({ isActive }) => navLinkClasses(isActive)}
+              >
+                Locations
+              </NavLink>
+            </>
+          )}
+        </div>
       </nav>
-      <main className="flex-1 overflow-auto">
-        <TimeDialProvider>
+      <TimeDialProvider>
+        {/* Global date range picker */}
+        <GlobalTimeDial />
+        <main className="flex-1 overflow-auto">
           <Outlet context={{ sourceDef, dataset }} />
-        </TimeDialProvider>
-      </main>
+        </main>
+      </TimeDialProvider>
     </div>
   );
 };

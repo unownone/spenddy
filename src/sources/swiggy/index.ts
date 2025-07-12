@@ -6,7 +6,7 @@ class SwiggySource extends AbstractSource {
   id = "swiggy";
   name = "Swiggy";
   description = "Food delivery orders from Swiggy";
-  logo = "/logo.png";
+  logo = "/swiggy.svg";
   importMethods: ImportMethod[] = ["extension"];
   extensionLink = "https://chromewebstore.google.com/detail/mibpmhoncjmniigifepbckapmoflkglo";
 

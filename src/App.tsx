@@ -244,7 +244,7 @@ const getTimePresets = (): TimePreset[] => {
       }),
     },
     {
-      label: "1Y",
+      label: "12M",
       getValue: () => ({
         start: subMonths(now, 12),
         end: now,
@@ -258,9 +258,9 @@ const getTimePresets = (): TimePreset[] => {
       }),
     },
     {
-      label: "Lifetime",
+      label: "All",
       getValue: () => ({
-        start: new Date(2020, 0, 1), // Start from 2020, covers most food delivery history
+        start: new Date(0),
         end: now,
       }),
     },
@@ -331,7 +331,7 @@ export const TimeDialProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-const GlobalTimeDial: React.FC = () => {
+export const GlobalTimeDial: React.FC = () => {
   const { selectedPreset, setSelectedPreset, presets, range, setCustomRange } =
     useTimeDial();
 

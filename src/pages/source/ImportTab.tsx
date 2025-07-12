@@ -4,6 +4,9 @@ import { useOutletContext, Link } from "react-router-dom";
 import { AnalyticsDataset, OrderRecord } from "../../types/CommonData";
 import { motion } from "framer-motion";
 import { DownloadCloud, CheckCircle2 } from "lucide-react";
+// Re-use landing page sections for richer context
+import HowItWorks from "../home/components/HowItWorks";
+import DemoSection from "../home/components/DemoSection";
 
 interface Props {
   source: SourceDefinition;
@@ -54,39 +57,67 @@ const ImportTab: React.FC<Props> = ({ source }) => {
 
   // No data yet – show import instructions based on method
   return (
-    <div className="flex flex-col items-center justify-center py-24 text-center space-y-8 max-w-xl mx-auto">
-      <h2 className="text-3xl md:text-4xl font-bold">Import your {source.name} data</h2>
-      {source.importMethods.includes("extension") && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="flex flex-col items-center space-y-6"
-        >
-          <DownloadCloud className="w-16 h-16 text-orange-500" />
-          <p className="text-muted-foreground text-lg leading-relaxed">
-            Install our free browser extension and we’ll fetch your order history automatically.
-          </p>
-          {source.extensionLink && (
-            <motion.a
-              whileHover={{ scale: 1.05 }}
-              href={source.extensionLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-10 py-4 rounded-full bg-orange-600 hover:bg-orange-700 text-white font-semibold shadow-xl"
-            >
-              Install Spenddy-Link ↗
-            </motion.a>
-          )}
-          <p className="text-sm text-muted-foreground max-w-sm">
-            After installing, refresh this page and your data will appear automatically.
-          </p>
-        </motion.div>
-      )}
-      {source.importMethods.includes("file") && (
-        <p>File upload coming soon.</p>
-      )}
-    </div>
+    <>
+      {/* Spenddy for Swiggy hero */}
+      <section className="pt-16 pb-8 text-center space-y-4 max-w-2xl mx-auto px-4">
+        <img
+          src="/logo.png"
+          alt="Spenddy logo"
+          className="w-14 h-14 mx-auto rounded-lg shadow"
+        />
+        <h1 className="text-4xl md:text-5xl font-extrabold text-gradient">
+          Spenddy for {source.name}
+        </h1>
+        <p className="text-muted-foreground text-lg">
+          Visualise your {source.name} spending habits, uncover hidden patterns,
+          and get clarity on where your food budget really goes – all securely
+          in your browser.
+        </p>
+      </section>
+
+      {/* Import instructions */}
+      <div className="flex flex-col items-center justify-center py-16 text-center space-y-8 max-w-xl mx-auto">
+        <h2 className="text-3xl md:text-4xl font-bold">
+          Import your {source.name} data
+        </h2>
+        {source.importMethods.includes("extension") && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="flex flex-col items-center space-y-6"
+          >
+            <DownloadCloud className="w-16 h-16 text-orange-500" />
+            <p className="text-muted-foreground text-lg leading-relaxed">
+              Install our free browser extension and we’ll fetch your order
+              history automatically.
+            </p>
+            {source.extensionLink && (
+              <motion.a
+                whileHover={{ scale: 1.05 }}
+                href={source.extensionLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-10 py-4 rounded-full bg-orange-600 hover:bg-orange-700 text-white font-semibold shadow-xl"
+              >
+                Install Spenddy-Link ↗
+              </motion.a>
+            )}
+            <p className="text-sm text-muted-foreground max-w-sm">
+              After installing, refresh this page and your data will appear
+              automatically.
+            </p>
+          </motion.div>
+        )}
+        {source.importMethods.includes("file") && (
+          <p>File upload coming soon.</p>
+        )}
+      </div>
+
+      {/* Spenddy-Link walkthrough + demo */}
+      <HowItWorks />
+      <DemoSection />
+    </>
   );
 };
 
