@@ -1,14 +1,5 @@
 # wrangler.toml
-name = "spenddy"              # any unique name
+name = "spenddy-pages"              # any unique name
 compatibility_date = "2025-07-12"
-main = "src/index.tsx"
-
-
-# We are *not* shipping a Worker script, just static files
-[site]
-bucket = "./dist"             # path that vite just produced
-
-
-# wrangler.toml (wrangler v3.88.0^)
-[observability.logs]
-enabled = true
+# wrangler.toml  – Pages mode
+pages_build_output_dir = "./dist"  # vite’s output folder
