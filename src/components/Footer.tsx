@@ -8,7 +8,10 @@ const Footer: React.FC = () => {
         ikr.one
       </a>{" "}
       •{" "}
-      <a href="/privacy-policy" className="underline hover:text-foreground">
+      <a
+        href="/source/privacy-policy"
+        className="underline hover:text-foreground"
+      >
         Privacy Policy
       </a>{" "}
       •{" "}
