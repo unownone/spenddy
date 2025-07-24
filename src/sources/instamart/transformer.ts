@@ -1,34 +1,40 @@
 import { OrderRecord } from "../../types/CommonData";
 import { format, getMonth, getYear, getHours } from "date-fns";
+import { OrderJobMetadata, type RawInstamartOrder } from "./types";
 
 /**
- * Safely convert string or number to float
+ * Extract payment method from payment info
  */
-const safeFloat = (value: string | number | undefined): number => {
-  if (typeof value === 'number') return value;
-  if (typeof value === 'string') {
-    try {
-      return parseFloat(value.replace(/,/g, ''));
-    } catch {
-      return 0;
-    }
-  }
-  return 0;
+const getPaymentMethod = (paymentInfo: any[]): string => {
+  if (!paymentInfo || paymentInfo.length === 0) return "Unknown";
+  const payment = paymentInfo[0];
+  return payment?.paymentMethodDisplayName || payment?.payment_method || "Unknown";
+  };
+  
+  /**
+ * Calculate total discounts from bill discounts
+ */
+const calculateDiscounts = (discounts: any[]): number => {
+  if (!discounts || discounts.length === 0) return 0;
+  return discounts.reduce((total, discount) => total + (discount?.value || 0), 0);
 };
 
-// Until we have a dedicated TS interface file, declare minimal fields we rely on
-interface RawInstamartOrder {
-  order_id: string;
-  created_at: number; // epoch ms
-  store_name: string;
-  total_amount: number | string;
-  item_count?: number;
-  delivery_address?: string;
-  order_status?: string;
-  coupon_code?: string;
-  discount_amount?: number | string;
-  [k: string]: unknown;
-}
+/**
+ * Extract detailed items from billed items
+ */
+const extractItems = (billedItems: any[]): any[] => {
+  if (!billedItems || billedItems.length === 0) return [];
+  
+  return billedItems.map(billedItem => ({
+    name: billedItem?.item?.name || 'Unknown Item',
+    quantity: billedItem?.item?.quantity || 1,
+    price: billedItem?.bill?.itemPrice || 0,
+    basePrice: billedItem?.bill?.itemBasePrice || 0,
+    totalCost: billedItem?.bill?.totalCost || 0,
+    itemId: billedItem?.item?.itemId || '',
+    discounts: billedItem?.bill?.discounts || []
+  }));
+};
 
 export const instamartTransformer = (
   raw: RawInstamartOrder[]
@@ -36,59 +42,193 @@ export const instamartTransformer = (
   console.log("raw", raw);
   if (!Array.isArray(raw)) return [];
   
-  // Debug: Log the first order to see the structure
-  if (raw.length > 0) {
-    console.log('Instamart raw data sample:', raw[0]);
-    console.log('total_amount type:', typeof raw[0].total_amount);
-    console.log('total_amount value:', raw[0].total_amount);
-  }
-  
-  return raw.map((o) => {
-    const orderTime = new Date(o.created_at);
-    const year = getYear(orderTime);
-    const month = getMonth(orderTime) + 1;
-    const monthYear = format(orderTime, "yyyy-MM");
-    const hour = getHours(orderTime);
-    const dayOfWeek = format(orderTime, "EEEE");
+  return raw.flatMap((orderWrapper) => {
+    // Use order_data which has much richer information
+    const orderData = orderWrapper.order_data;
+    if (!orderData || !orderData.orders || orderData.orders.length === 0) {
+      console.warn("No order_data or orders found, falling back to order_data_v2");
+      // Fallback to simpler extraction from order_data_v2
+      return extractFromOrderDataV2(orderWrapper);
+    }
 
-    const items = (o as any).item_list ?? [];
+    return orderData.orders.flatMap(order => {
+      if (!order.order_jobs || order.order_jobs.length === 0) {
+        return [];
+      }
 
-    // Safely parse amounts
-    const totalAmount = safeFloat(o.total_amount);
-    const discountAmount = safeFloat(o.discount_amount);
+      return order.order_jobs.map(job => {
+        const orderTime = new Date(job.created_at);
+        const year = getYear(orderTime);
+        const month = getMonth(orderTime) + 1;
+        const monthYear = format(orderTime, "yyyy-MM");
+        const hour = getHours(orderTime);
+        const dayOfWeek = format(orderTime, "EEEE");
 
-    const record = {
-      orderId: o.order_id,
-      source: "swiggy-instamart",
-      orderTime,
-      orderTotal: totalAmount,
-      netTotal: totalAmount - discountAmount,
-      totalFees: 0,
-      tipAmount: 0,
+        const metadata = JSON.parse(job.metadata) as OrderJobMetadata;
+        const bill = metadata?.bill;
+        const storeInfo = metadata?.storeInfo;
+        const address = metadata?.address;
+        
+        // Extract detailed financial information with null checks
+        const totalAmount = bill?.totalBill || metadata?.orderTotal || 0;
+        const subTotal = bill?.subTotal || 0;
+        const orderDiscount = calculateDiscounts(bill?.discounts || []);
+        const itemDiscounts = bill?.billedItems?.reduce((total, item) => 
+          total + calculateDiscounts(item?.bill?.discounts || []), 0) || 0;
+        
+        // Extract detailed items
+        const items = extractItems(bill?.billedItems || metadata?.items || []);
+        const itemsCount = bill?.itemQuantity || metadata?.items?.length || items.length || 0;
 
-      paymentMethod: "Unknown",
-      restaurantName: o.store_name,
-      restaurantCuisine: ["Grocery"],
-      restaurantCityName: "",
-      restaurantLocality: "",
+        // Extract payment information
+        const paymentMethod = getPaymentMethod(job.payment_info || []);
 
-      year,
-      month,
-      monthYear,
-      dayOfWeek,
-      hour,
+        // Extract location information
+        const deliveryCity = address?.city || "";
+        const deliveryArea = address?.area || "";
+        const restaurantArea = storeInfo?.area || "";
+        const restaurantCity = storeInfo?.cityName || "";
 
-      itemsCount: o.item_count,
-      items,
+        // Extract delivery time information
+        const deliveryTime = metadata?.waitTimePredicted 
+          ? metadata.waitTimePredicted * 60 // Convert minutes to seconds
+          : metadata?.slaInSeconds || 0;
 
-      deliveryArea: "",
-      deliveryCity: "",
+        // Extract fee breakdown that SpendingDashboard expects
+        const deliveryCharges = bill?.charges?.find(c => c?.type === 'deliveryCharge')?.value || 0;
+        const packingCharges = bill?.charges?.find(c => c?.type === 'storePackagingCharges')?.value || 0;
+        const convenienceFee = bill?.charges?.find(c => c?.type === 'convenienceFee')?.value || 0;
+        const serviceCharges = bill?.charges?.find(c => c?.type === 'serviceCharge' || c?.type === 'serviceCharges')?.value || 0;
+        const gst = bill?.taxes?.reduce((total, tax) => total + (tax?.value || 0), 0) || 0;
 
-      orderDiscount: discountAmount,
-      couponDiscount: 0,
-      couponApplied: o.coupon_code,
-    } as OrderRecord;
+        // Calculate totalFees the same way SpendingDashboard does
+        const totalFees = deliveryCharges + packingCharges + convenienceFee + serviceCharges + gst;
 
-    return record;
+        const record: OrderRecord = {
+          orderId: job.order_job_id || order.order_id || orderWrapper.order_id,
+          source: "swiggy-instamart",
+          orderTime,
+          orderTotal: totalAmount,
+          netTotal: totalAmount - orderDiscount,
+          totalFees,
+          tipAmount: 0, // Instamart doesn't typically have tips
+
+          paymentMethod,
+          restaurantName: storeInfo?.name || "Instamart",
+          restaurantCuisine: storeInfo?.categories?.map(cat => cat.name) || ["Grocery"],
+          restaurantCityName: restaurantCity,
+          restaurantLocality: restaurantArea,
+
+          year,
+          month,
+          monthYear,
+          dayOfWeek,
+          hour,
+
+          itemsCount,
+          items,
+
+          deliveryArea,
+          deliveryCity,
+          deliveryTime, // Now properly set for delivery analysis
+
+          orderDiscount: orderDiscount + itemDiscounts,
+          couponDiscount: orderDiscount, // Trade discounts (like free delivery)
+          couponApplied: order.coupon_code,
+
+          // Fee breakdown fields that SpendingDashboard expects
+          deliveryCharges,
+          packingCharges, // Note: using packingCharges not packagingCharges
+          convenienceFee,
+          serviceCharges,
+          gst,
+
+          // Additional Instamart-specific fields that could be useful for analytics
+          storeId: metadata?.storeId?.toString(),
+          deliveryType: metadata?.deliveryType,
+          orderStatus: job.status,
+          
+          // Location data for geographic analysis
+          restaurantLat: storeInfo?.location?.latitude,
+          restaurantLng: storeInfo?.location?.longitude,
+          deliveryLat: address?.lat,
+          deliveryLng: address?.lng,
+          
+          // Timing data for delivery analysis
+          slaInSeconds: metadata?.slaInSeconds,
+          waitTimePredicted: metadata?.waitTimePredicted,
+          lastMileDistance: metadata?.lastMileDistance,
+          
+          // Financial breakdown for detailed analysis
+          subTotal,
+          itemTotal: bill?.totalItemCost || 0,
+        } as OrderRecord;
+
+        return record;
+      });
+    });
   });
+};
+
+/**
+ * Fallback function to extract data from order_data_v2 when order_data is not available
+ */
+const extractFromOrderDataV2 = (orderWrapper: RawInstamartOrder): OrderRecord[] => {
+  const orderTime = new Date(orderWrapper.created_at);
+  const year = getYear(orderTime);
+  const month = getMonth(orderTime) + 1;
+  const monthYear = format(orderTime, "yyyy-MM");
+  const hour = getHours(orderTime);
+  const dayOfWeek = format(orderTime, "EEEE");
+
+  // Extract items from order_data_v2
+  const items = orderWrapper.order_data_v2?.shipments?.flatMap(shipment => 
+    shipment.items?.map(item => ({
+      name: item.name || 'Unknown Item',
+      quantity: item.quantity || 1,
+      price: 0,
+      basePrice: 0,
+      totalCost: 0,
+      itemId: '',
+      discounts: []
+    })) || []
+  ) || [];
+
+  // Safely parse amounts
+  const totalAmount = orderWrapper.order_data_v2?.total?.units || 0;
+  const discountAmount = 0;
+
+  const record: OrderRecord = {
+    orderId: orderWrapper.order_id,
+    source: "swiggy-instamart",
+    orderTime,
+    orderTotal: totalAmount,
+    netTotal: totalAmount - discountAmount,
+    totalFees: 0,
+    tipAmount: 0,
+
+    paymentMethod: "Unknown",
+    restaurantName: orderWrapper.order_data_v2?.description || "Instamart",
+    restaurantCuisine: ["Grocery"],
+    restaurantCityName: "",
+    restaurantLocality: "",
+
+    year,
+    month,
+    monthYear,
+    dayOfWeek,
+    hour,
+
+    itemsCount: items.length,
+    items,
+
+    deliveryArea: "",
+    deliveryCity: "",
+
+    orderDiscount: discountAmount,
+    couponDiscount: 0,
+    couponApplied: "",
+  } as OrderRecord;
+
+  return [record];
 };

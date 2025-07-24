@@ -7,7 +7,6 @@ import {
   RestaurantsDashboard,
   LocationsDashboard,
   ItemsDashboard,
-  ReservationTimelineDashboard,
   GroupSizeDashboard,
 } from "../../features/analytics";
 import { AnalyticsDataset, OrderRecord } from "../../types/CommonData";
@@ -53,12 +52,6 @@ const SourceRoutes: React.FC = () => {
               <Route
                 path="restaurants"
                 element={<RestaurantsDashboard data={dataset.records} />}
-              />
-              <Route
-                path="reservation-timeline"
-                element={
-                  <ReservationTimelineDashboard data={dataset.records} />
-                }
               />
               <Route
                 path="group-size"

@@ -138,12 +138,6 @@ const SourceLayout: React.FC = () => {
                     Restaurants
                   </NavLink>
                   <NavLink
-                    to="reservation-timeline"
-                    className={({ isActive }) => navLinkClasses(isActive)}
-                  >
-                    Timeline
-                  </NavLink>
-                  <NavLink
                     to="group-size"
                     className={({ isActive }) => navLinkClasses(isActive)}
                   >

@@ -563,11 +563,11 @@ const SpendingDashboard: React.FC<SpendingDashboardProps> = ({
     const totalFees = data.reduce(
       (sum, order) =>
         sum +
-        order.deliveryCharges +
-        order.packingCharges +
-        order.convenienceFee +
-        order.gst +
-        order.serviceCharges,
+        (order.deliveryCharges || 0) +
+        (order.packingCharges || 0) +
+        (order.convenienceFee || 0) +
+        (order.gst || 0) +
+        (order.serviceCharges || 0),
       0
     );
     const totalOrders = data.length;
@@ -579,18 +579,21 @@ const SpendingDashboard: React.FC<SpendingDashboardProps> = ({
 
     // Fees breakdown
     const feesBreakdown: FeesBreakdown = {
-      deliveryFees: data.reduce((sum, order) => sum + order.deliveryCharges, 0),
+      deliveryFees: data.reduce(
+        (sum, order) => sum + (order.deliveryCharges || 0),
+        0
+      ),
       packingCharges: data.reduce(
-        (sum, order) => sum + order.packingCharges,
+        (sum, order) => sum + (order.packingCharges || 0),
         0
       ),
       convenienceFee: data.reduce(
-        (sum, order) => sum + order.convenienceFee,
+        (sum, order) => sum + (order.convenienceFee || 0),
         0
       ),
-      gst: data.reduce((sum, order) => sum + order.gst, 0),
+      gst: data.reduce((sum, order) => sum + (order.gst || 0), 0),
       serviceCharges: data.reduce(
-        (sum, order) => sum + order.serviceCharges,
+        (sum, order) => sum + (order.serviceCharges || 0),
         0
       ),
       total: totalFees,
@@ -658,6 +661,11 @@ const SpendingDashboard: React.FC<SpendingDashboardProps> = ({
   // Notable quick stats
   const quickStats = useMemo(() => {
     if (!data.length) return null;
+
+    const isDineoutData = data.some(
+      (order) => order.source === "swiggy-dineout"
+    );
+
     // Most expensive order
     const mostExpensive = data.reduce(
       (max, o) => (o.orderTotal > max.orderTotal ? o : max),
@@ -668,35 +676,41 @@ const SpendingDashboard: React.FC<SpendingDashboardProps> = ({
       (min, o) => (o.orderTotal < min.orderTotal ? o : min),
       data[0]
     );
-    // Fastest delivered order (lowest deliveryTime > 0)
-    const delivered = data.filter((o) => o.deliveryTime && o.deliveryTime > 0);
-    const fastest = delivered.length
-      ? delivered.reduce(
+
+    // Delivery stats only for non-dineout orders
+    const deliveryOrders = data.filter(
+      (o) =>
+        o.deliveryTime && o.deliveryTime > 0 && o.source !== "swiggy-dineout"
+    );
+    const fastest = deliveryOrders.length
+      ? deliveryOrders.reduce(
           (min, o) => (o.deliveryTime! < min.deliveryTime! ? o : min),
-          delivered[0]
+          deliveryOrders[0]
         )
       : null;
-    const slowest = delivered.length
-      ? delivered.reduce(
+    const slowest = deliveryOrders.length
+      ? deliveryOrders.reduce(
           (max, o) => (o.deliveryTime! > max.deliveryTime! ? o : max),
-          delivered[0]
+          deliveryOrders[0]
         )
       : null;
-    // Latest delivered order (most recent orderTime)
+
+    // Latest order (most recent orderTime)
     const latest = data.reduce(
       (max, o) => (o.orderTime > max.orderTime ? o : max),
       data[0]
     );
     // Most items
     const mostItems = data.reduce(
-      (max, o) => (o.itemsCount > max.itemsCount ? o : max),
+      (max, o) => ((o.itemsCount || 0) > (max.itemsCount || 0) ? o : max),
       data[0]
     );
     // Least items
     const leastItems = data.reduce(
-      (min, o) => (o.itemsCount < min.itemsCount ? o : min),
+      (min, o) => ((o.itemsCount || 0) < (min.itemsCount || 0) ? o : min),
       data[0]
     );
+
     return {
       mostExpensive,
       leastExpensive,
@@ -705,6 +719,7 @@ const SpendingDashboard: React.FC<SpendingDashboardProps> = ({
       latest,
       mostItems,
       leastItems,
+      isDineoutData,
     };
   }, [data]);
 
@@ -732,14 +747,19 @@ const SpendingDashboard: React.FC<SpendingDashboardProps> = ({
     {
       title: "Total Fees",
       value: formatCurrency(spendingMetrics.totalFees),
-      subtitle: `${(
-        (spendingMetrics.totalFees / Math.max(spendingMetrics.totalSpent, 1)) *
-        100
-      ).toFixed(1)}% of total`,
-      trend: {
-        value: spendingMetrics.feesTrend,
-        isPositive: spendingMetrics.feesTrend < 0, // Lower fees are better
-      },
+      subtitle: quickStats?.isDineoutData
+        ? "No delivery fees (dine-in)"
+        : `${(
+            (spendingMetrics.totalFees /
+              Math.max(spendingMetrics.totalSpent, 1)) *
+            100
+          ).toFixed(1)}% of total`,
+      trend: quickStats?.isDineoutData
+        ? undefined
+        : {
+            value: spendingMetrics.feesTrend,
+            isPositive: spendingMetrics.feesTrend < 0, // Lower fees are better
+          },
       icon: Receipt,
       color: "orange",
     },
@@ -797,7 +817,7 @@ const SpendingDashboard: React.FC<SpendingDashboardProps> = ({
               </span>
             </div>
             <div className="text-gray-400">
-              {quickStats.mostExpensive.itemsCount} items,{" "}
+              {quickStats.mostExpensive.itemsCount || "N/A"} items,{" "}
               {quickStats.mostExpensive.orderTime.toLocaleDateString()}
             </div>
           </div>
@@ -812,52 +832,80 @@ const SpendingDashboard: React.FC<SpendingDashboardProps> = ({
               </span>
             </div>
             <div className="text-gray-400">
-              {quickStats.leastExpensive.itemsCount} items,{" "}
+              {quickStats.leastExpensive.itemsCount || "N/A"} items,{" "}
               {quickStats.leastExpensive.orderTime.toLocaleDateString()}
             </div>
           </div>
-          <div className="bg-dark-700 rounded-lg p-4 text-xs">
-            <div className="font-semibold text-blue-400 mb-1">
-              Fastest Delivery
-            </div>
-            {quickStats.fastest ? (
-              <>
-                <div>
-                  {Math.round(quickStats.fastest.deliveryTime / 60)} min to{" "}
-                  <span className="font-medium">
-                    {quickStats.fastest.restaurantName}
-                  </span>
+          {!quickStats.isDineoutData && (
+            <>
+              <div className="bg-dark-700 rounded-lg p-4 text-xs">
+                <div className="font-semibold text-blue-400 mb-1">
+                  Fastest Delivery
+                </div>
+                {quickStats.fastest ? (
+                  <>
+                    <div>
+                      {Math.round(quickStats.fastest.deliveryTime / 60)} min to{" "}
+                      <span className="font-medium">
+                        {quickStats.fastest.restaurantName}
+                      </span>
+                    </div>
+                    <div className="text-gray-400">
+                      {quickStats.fastest.itemsCount || "N/A"} items,{" "}
+                      {quickStats.fastest.orderTime.toLocaleDateString()}
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-gray-400">No data</div>
+                )}
+              </div>
+              <div className="bg-dark-700 rounded-lg p-4 text-xs">
+                <div className="font-semibold text-red-400 mb-1">
+                  Slowest Delivery
+                </div>
+                {quickStats.slowest ? (
+                  <>
+                    <div>
+                      {Math.round(quickStats.slowest.deliveryTime / 60)} min to{" "}
+                      <span className="font-medium">
+                        {quickStats.slowest.restaurantName}
+                      </span>
+                    </div>
+                    <div className="text-gray-400">
+                      {quickStats.slowest.itemsCount || "N/A"} items,{" "}
+                      {quickStats.slowest.orderTime.toLocaleDateString()}
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-gray-400">No data</div>
+                )}
+              </div>
+            </>
+          )}
+          {quickStats.isDineoutData && (
+            <>
+              <div className="bg-dark-700 rounded-lg p-4 text-xs">
+                <div className="font-semibold text-blue-400 mb-1">
+                  Dine-In Experience
                 </div>
                 <div className="text-gray-400">
-                  {quickStats.fastest.itemsCount} items,{" "}
-                  {quickStats.fastest.orderTime.toLocaleDateString()}
+                  Delivery times not applicable for dine-in orders
                 </div>
-              </>
-            ) : (
-              <div className="text-gray-400">No data</div>
-            )}
-          </div>
-          <div className="bg-dark-700 rounded-lg p-4 text-xs">
-            <div className="font-semibold text-red-400 mb-1">
-              Slowest Delivery
-            </div>
-            {quickStats.slowest ? (
-              <>
-                <div>
-                  {Math.round(quickStats.slowest.deliveryTime / 60)} min to{" "}
-                  <span className="font-medium">
-                    {quickStats.slowest.restaurantName}
-                  </span>
+              </div>
+              <div className="bg-dark-700 rounded-lg p-4 text-xs">
+                <div className="font-semibold text-purple-400 mb-1">
+                  Reservation Data
                 </div>
                 <div className="text-gray-400">
-                  {quickStats.slowest.itemsCount} items,{" "}
-                  {quickStats.slowest.orderTime.toLocaleDateString()}
+                  {
+                    data.filter((order) => order.source === "swiggy-dineout")
+                      .length
+                  }{" "}
+                  dine-in reservations
                 </div>
-              </>
-            ) : (
-              <div className="text-gray-400">No data</div>
-            )}
-          </div>
+              </div>
+            </>
+          )}
           <div className="bg-dark-700 rounded-lg p-4 text-xs">
             <div className="font-semibold text-purple-400 mb-1">
               Latest Order
@@ -869,14 +917,14 @@ const SpendingDashboard: React.FC<SpendingDashboardProps> = ({
               </span>
             </div>
             <div className="text-gray-400">
-              {quickStats.latest.itemsCount} items,{" "}
+              {quickStats.latest.itemsCount || "N/A"} items,{" "}
               {quickStats.latest.orderTime.toLocaleDateString()}
             </div>
           </div>
           <div className="bg-dark-700 rounded-lg p-4 text-xs">
             <div className="font-semibold text-yellow-400 mb-1">Most Items</div>
             <div>
-              {quickStats.mostItems.itemsCount} items at{" "}
+              {quickStats.mostItems.itemsCount || "N/A"} items at{" "}
               <span className="font-medium">
                 {quickStats.mostItems.restaurantName}
               </span>
@@ -889,7 +937,7 @@ const SpendingDashboard: React.FC<SpendingDashboardProps> = ({
           <div className="bg-dark-700 rounded-lg p-4 text-xs">
             <div className="font-semibold text-pink-400 mb-1">Least Items</div>
             <div>
-              {quickStats.leastItems.itemsCount} items at{" "}
+              {quickStats.leastItems.itemsCount || "N/A"} items at{" "}
               <span className="font-medium">
                 {quickStats.leastItems.restaurantName}
               </span>
@@ -998,23 +1046,37 @@ const SpendingDashboard: React.FC<SpendingDashboardProps> = ({
             <div className="bg-dark-700 rounded-lg p-4">
               <div className="flex items-center space-x-2 mb-2">
                 <AlertTriangle className="w-4 h-4 text-yellow-400" />
-                <span className="text-white font-medium">Fees Impact</span>
+                <span className="text-white font-medium">
+                  {quickStats?.isDineoutData
+                    ? "Dine-In Savings"
+                    : "Fees Impact"}
+                </span>
               </div>
               <p className="text-gray-400 text-sm">
-                You've paid{" "}
-                <strong className="text-white">
-                  {formatCurrency(spendingMetrics.totalFees)}
-                </strong>{" "}
-                in fees, which is{" "}
-                <strong className="text-yellow-400">
-                  {(
-                    (spendingMetrics.totalFees /
-                      Math.max(spendingMetrics.totalSpent, 1)) *
-                    100
-                  ).toFixed(1)}
-                  %
-                </strong>{" "}
-                of your total spending.
+                {quickStats?.isDineoutData ? (
+                  <>
+                    Dine-in orders have{" "}
+                    <strong className="text-green-400">no delivery fees</strong>
+                    , saving you money compared to delivery orders.
+                  </>
+                ) : (
+                  <>
+                    You've paid{" "}
+                    <strong className="text-white">
+                      {formatCurrency(spendingMetrics.totalFees)}
+                    </strong>{" "}
+                    in fees, which is{" "}
+                    <strong className="text-yellow-400">
+                      {(
+                        (spendingMetrics.totalFees /
+                          Math.max(spendingMetrics.totalSpent, 1)) *
+                        100
+                      ).toFixed(1)}
+                      %
+                    </strong>{" "}
+                    of your total spending.
+                  </>
+                )}
               </p>
             </div>
 
@@ -1027,19 +1089,16 @@ const SpendingDashboard: React.FC<SpendingDashboardProps> = ({
                 You've tipped{" "}
                 <strong className="text-white">
                   {formatCurrency(
-                    spendingMetrics.totalFees -
-                      spendingMetrics.feesBreakdown.deliveryFees -
-                      spendingMetrics.feesBreakdown.packingCharges -
-                      spendingMetrics.feesBreakdown.convenienceFee -
-                      spendingMetrics.feesBreakdown.gst -
-                      spendingMetrics.feesBreakdown.serviceCharges
+                    data.reduce((sum, order) => sum + (order.tipAmount || 0), 0)
                   )}
                 </strong>
                 , averaging{" "}
                 <strong className="text-purple-400">
                   {formatCurrency(
-                    spendingMetrics.totalFees /
-                      Math.max(spendingMetrics.totalOrders, 1)
+                    data.reduce(
+                      (sum, order) => sum + (order.tipAmount || 0),
+                      0
+                    ) / Math.max(spendingMetrics.totalOrders, 1)
                   )}
                 </strong>{" "}
                 per order.

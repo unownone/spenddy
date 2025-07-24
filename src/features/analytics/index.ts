@@ -3,5 +3,4 @@ export { default as SpendingDashboard } from "../../components/dashboards/Spendi
 export { default as RestaurantsDashboard } from "../../components/dashboards/RestaurantsDashboard";
 export { default as LocationsDashboard } from "../../components/dashboards/LocationsDashboard";
 export { default as ItemsDashboard } from "../../components/dashboards/ItemsDashboard";
-export { default as ReservationTimelineDashboard } from "../../components/dashboards/ReservationTimelineDashboard";
 export { default as GroupSizeDashboard } from "../../components/dashboards/GroupSizeDashboard"; 
