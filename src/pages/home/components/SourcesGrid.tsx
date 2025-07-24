@@ -7,6 +7,11 @@ interface Props {
   sources: Record<string, SourceDefinition>;
 }
 
+// Helper function to check if a source is new
+const isNewSource = (sourceId: string): boolean => {
+  return sourceId === "swiggy-instamart" || sourceId === "swiggy-dineout";
+};
+
 const SourcesGrid: React.FC<Props> = ({ sources }) => (
   <section id="sources" className="py-20">
     <div className="max-w-6xl mx-auto px-6">
@@ -22,7 +27,24 @@ const SourcesGrid: React.FC<Props> = ({ sources }) => (
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: idx * 0.05 }}
+            className="relative"
           >
+            {/* NEW Badge */}
+            {isNewSource(src.id) && (
+              <motion.div
+                initial={{ scale: 0, rotate: -12 }}
+                animate={{ scale: 1, rotate: -12 }}
+                transition={{
+                  delay: 0.3 + idx * 0.1,
+                  type: "spring",
+                  stiffness: 500,
+                }}
+                className="absolute -top-2 -right-2 z-10 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg border-2 border-white"
+              >
+                NEW
+              </motion.div>
+            )}
+
             <Link
               to={`/${src.id}`}
               className="group h-full flex flex-col border rounded-xl p-6 bg-background/60 backdrop-blur hover:shadow-xl transition"
