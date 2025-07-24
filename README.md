@@ -239,7 +239,19 @@ Routing follows the same pattern:
 /:source/overview → Overview dashboard for that source
 ```
 
-Add a new provider under `SourceDataContext` and you’re done!
+Add a new provider under `SourceDataContext` and you're done!
+
+### Memory Optimization
+
+Spenddy implements **lazy loading** and **automatic cleanup** to prevent memory issues:
+
+- **Lazy Loading**: Data is only loaded when a user actually visits a source page, not on app startup
+- **Access Tracking**: Each source tracks when it was last accessed
+- **Automatic Cleanup**: Sources not accessed for 10+ minutes are automatically unloaded
+- **Navigation Cleanup**: Data is unloaded 30 seconds after navigating away from a source
+- **Periodic Refresh**: Only loaded sources participate in the 30-second extension data refresh
+
+This ensures the app remains performant even with large datasets and multiple sources.
 
 ### Supported sources
 

@@ -21,6 +21,9 @@ export interface SourceDefinition {
   /** Chrome/Edge extension link if importMethods includes "extension" */
   extensionLink?: string;
 
+  /** Custom localStorage key for raw JSON if the default <id>_raw_data does not apply */
+  rawStorageKey?: string;
+
   /**
    * Transforms raw platform-specific JSON into Spenddy's OrderRecord []
    * This **must not** mutate the input array.
