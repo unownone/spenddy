@@ -43,6 +43,9 @@ export interface OrderRecord {
   // Item-level details
   itemsCount?: number;
 
+  /** Number of people/diners for dine-in orders */
+  pax?: number;
+
   /** Primary payment method label */
   paymentMethod: string;
 

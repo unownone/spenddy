@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { SourceDefinition } from "../../sources/BaseSource";
 import { useOutletContext, Link } from "react-router-dom";
 import { AnalyticsDataset, OrderRecord } from "../../types/CommonData";
 import { motion } from "framer-motion";
-import { DownloadCloud, CheckCircle2 } from "lucide-react";
+import { DownloadCloud, CheckCircle2, RefreshCw } from "lucide-react";
+import { useSourceData } from "../../contexts/SourceDataContext";
 // Re-use landing page sections for richer context
 import HowItWorks from "../home/components/HowItWorks";
 import DemoSection from "../home/components/DemoSection";
@@ -18,6 +19,8 @@ interface OutletCtx {
 
 const ImportTab: React.FC<Props> = ({ source }) => {
   const { dataset } = useOutletContext<OutletCtx>();
+  const { refreshFromIndexedDB } = useSourceData();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   if (dataset) {
     return (
@@ -35,13 +38,43 @@ const ImportTab: React.FC<Props> = ({ source }) => {
           <p className="text-muted-foreground max-w-md">
             Your {source.name} history is ready.
           </p>
-          <motion.div whileHover={{ scale: 1.05 }}>
-            <Link
-              to="overview"
-              className="px-8 py-4 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-semibold shadow-xl"
-            >
-              View Dashboards →
-            </Link>
+          <motion.div className="flex gap-4">
+            <motion.div whileHover={{ scale: 1.05 }}>
+              <Link
+                to="overview"
+                className="px-8 py-4 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-semibold shadow-xl"
+              >
+                View Dashboards →
+              </Link>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }}>
+              <button
+                onClick={async () => {
+                  setIsRefreshing(true);
+                  try {
+                    // Trigger the extension to fetch fresh data
+                    window.dispatchEvent(
+                      new CustomEvent("spenddy-fetch-orders")
+                    );
+
+                    // Wait a bit for the extension to process
+                    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+                    // Then refresh from IndexedDB
+                    await refreshFromIndexedDB(source.id);
+                  } finally {
+                    setIsRefreshing(false);
+                  }
+                }}
+                disabled={isRefreshing}
+                className="px-6 py-4 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold shadow-xl flex items-center gap-2"
+              >
+                <RefreshCw
+                  className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
+                />
+                Refresh Data
+              </button>
+            </motion.div>
           </motion.div>
         </motion.div>
         {/* Pulsating gradient background */}
@@ -107,6 +140,38 @@ const ImportTab: React.FC<Props> = ({ source }) => {
               After installing, refresh this page and your data will appear
               automatically.
             </p>
+            <motion.div className="flex flex-col items-center space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Already installed the extension? Try refreshing the data:
+              </p>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                onClick={async () => {
+                  setIsRefreshing(true);
+                  try {
+                    // Trigger the extension to fetch fresh data
+                    window.dispatchEvent(
+                      new CustomEvent("spenddy-fetch-orders")
+                    );
+
+                    // Wait a bit for the extension to process
+                    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+                    // Then refresh from IndexedDB
+                    await refreshFromIndexedDB(source.id);
+                  } finally {
+                    setIsRefreshing(false);
+                  }
+                }}
+                disabled={isRefreshing}
+                className="px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold shadow-lg flex items-center gap-2"
+              >
+                <RefreshCw
+                  className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
+                />
+                {isRefreshing ? "Refreshing..." : "Refresh from Extension"}
+              </motion.button>
+            </motion.div>
           </motion.div>
         )}
         {source.importMethods.includes("file") && (
@@ -121,4 +186,4 @@ const ImportTab: React.FC<Props> = ({ source }) => {
   );
 };
 
-export default ImportTab; 
+export default ImportTab;

@@ -13,6 +13,7 @@ import {
 import { Progress } from "../ui/progress";
 import { Separator } from "../ui/separator";
 import { Line } from "react-chartjs-2";
+import HourDayHeatmap from "../charts/HourDayHeatmap";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -118,103 +119,19 @@ const OverviewChart: React.FC<{
   return <Line data={chartData} options={options} />;
 };
 
-const OrderActivityHeatmap: React.FC<{ data: OrderRecord[] }> = ({ data }) => {
-  const heatmapData = useMemo(() => {
-    if (!data || data.length === 0) return [];
-
-    const dayHourCounts: Record<string, Record<string, number>> = {};
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-    // Initialize
-    days.forEach((day) => {
-      dayHourCounts[day] = {};
-      for (let hour = 0; hour < 24; hour++) {
-        dayHourCounts[day][hour] = 0;
-      }
-    });
-
-    // Count orders
-    data.forEach((order) => {
-      const day = days[order.orderTime.getDay()];
-      const hour = order.orderTime.getHours();
-      dayHourCounts[day][hour]++;
-    });
-
-    return dayHourCounts;
-  }, [data]);
-
-  const getColorIntensity = (orderCount: number): string => {
-    if (orderCount === 0) return "bg-gray-800";
-    if (orderCount <= 2) return "bg-green-900";
-    if (orderCount <= 5) return "bg-green-700";
-    if (orderCount <= 10) return "bg-green-500";
-    return "bg-green-300";
-  };
-
-  const maxOrders = Math.max(
-    ...Object.values(heatmapData).flatMap((dayData) =>
-      Object.values(dayData).map(Number)
-    )
-  );
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Order Activity Heatmap</CardTitle>
-        <CardDescription>
-          Your ordering patterns by day and hour
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          <div
-            className="grid gap-0.5 text-xs"
-            style={{ gridTemplateColumns: "auto repeat(24, minmax(0, 1fr))" }}
-          >
-            <div></div>
-            {Array.from({ length: 24 }, (_, i) => (
-              <div key={i} className="text-center text-gray-400 text-xs">
-                {i}
-              </div>
-            ))}
-          </div>
-          {Object.entries(heatmapData).map(([day, hourData]) => (
-            <div
-              key={day}
-              className="grid gap-0.5 items-center"
-              style={{ gridTemplateColumns: "auto repeat(24, minmax(0, 1fr))" }}
-            >
-              <div className="text-xs text-gray-400 w-8">{day}</div>
-              {Object.entries(hourData).map(([hour, count]) => (
-                <div
-                  key={hour}
-                  className={`w-3 h-3 rounded-sm ${getColorIntensity(
-                    Number(count)
-                  )}`}
-                  title={`${day} ${hour}:00 - ${count} orders`}
-                />
-              ))}
-            </div>
-          ))}
-          <div className="flex items-center justify-between text-xs text-gray-400 mt-2">
-            <span>Less</span>
-            <div className="flex space-x-0.5">
-              <div className="w-3 h-3 rounded-sm bg-gray-800" />
-              <div className="w-3 h-3 rounded-sm bg-green-900" />
-              <div className="w-3 h-3 rounded-sm bg-green-700" />
-              <div className="w-3 h-3 rounded-sm bg-green-500" />
-              <div className="w-3 h-3 rounded-sm bg-green-300" />
-            </div>
-            <span>More</span>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
+// OrderActivityHeatmap has been moved to reusable HourDayHeatmap
 
 const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ data }) => {
   const { range } = useTimeDial();
+
+  // Debug: Log the data being received
+  console.log("OverviewDashboard received data:", {
+    totalOrders: data?.totalOrders,
+    totalSpent: data?.totalSpent,
+    averageOrderValue: data?.averageOrderValue,
+    uniqueRestaurants: data?.uniqueRestaurants,
+    ordersLength: data?.orders?.length,
+  });
 
   // Filter data based on global time dial
   const filteredData = useMemo(() => {
@@ -273,7 +190,11 @@ const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ data }) => {
       </div>
 
       {/* Order Activity Heatmap */}
-      <OrderActivityHeatmap data={data.orders} />
+      <HourDayHeatmap
+        timestamps={filteredData.map((o) => o.orderTime)}
+        title="Order Activity Heatmap"
+        description="Your ordering patterns by day and hour"
+      />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card className="bg-gradient-to-br from-orange-500/10 to-orange-600/10 border-orange-500/20">
@@ -283,7 +204,10 @@ const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ data }) => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-500">
-              ₹{data.totalSpent.toLocaleString("en-IN")}
+              ₹
+              {isNaN(data.totalSpent)
+                ? "0"
+                : data.totalSpent.toLocaleString("en-IN")}
             </div>
             <p className="text-xs text-muted-foreground">Across all orders</p>
           </CardContent>
@@ -313,7 +237,10 @@ const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ data }) => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-500">
-              ₹{Math.round(data.averageOrderValue)}
+              ₹
+              {isNaN(data.averageOrderValue)
+                ? "0"
+                : Math.round(data.averageOrderValue)}
             </div>
             <p className="text-xs text-muted-foreground">Per order average</p>
           </CardContent>

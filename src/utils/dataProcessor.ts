@@ -330,7 +330,27 @@ export const toCommonOrderRecord = (
 
 export const generateAnalyticsDataset = (orders: OrderRecord[]): AnalyticsDataset => {
   const totalOrders = orders.length;
-  const totalSpent = orders.reduce((sum, o) => sum + o.orderTotal, 0);
+  
+  // Debug: Log order totals to see what's happening
+  console.log('Generating analytics for', totalOrders, 'orders');
+  orders.slice(0, 3).forEach((order, index) => {
+    console.log(`Order ${index + 1}:`, {
+      orderId: order.orderId,
+      orderTotal: order.orderTotal,
+      type: typeof order.orderTotal,
+      restaurantName: order.restaurantName
+    });
+  });
+  
+  const totalSpent = orders.reduce((sum, o) => {
+    const amount = o.orderTotal || 0;
+    if (isNaN(amount)) {
+      console.warn('NaN orderTotal found for order:', o.orderId, o.orderTotal);
+      return sum;
+    }
+    return sum + amount;
+  }, 0);
+  
   const averageOrderValue = totalOrders ? totalSpent / totalOrders : 0;
   const totalTips = orders.reduce((sum, o) => sum + (o.tipAmount ?? 0), 0);
   const totalFees = orders.reduce((sum, o) => sum + (o.totalFees ?? 0), 0);
@@ -343,7 +363,7 @@ export const generateAnalyticsDataset = (orders: OrderRecord[]): AnalyticsDatase
     end: new Date(Math.max(...dates.map((d) => d.getTime()))),
   };
 
-  return {
+  const result = {
     orders,
     totalOrders,
     totalSpent,
@@ -354,4 +374,14 @@ export const generateAnalyticsDataset = (orders: OrderRecord[]): AnalyticsDatase
     uniqueAreas,
     dateRange,
   };
+
+  // Debug: Log the final analytics
+  console.log('Generated analytics:', {
+    totalOrders: result.totalOrders,
+    totalSpent: result.totalSpent,
+    averageOrderValue: result.averageOrderValue,
+    uniqueRestaurants: result.uniqueRestaurants
+  });
+
+  return result;
 }; 
